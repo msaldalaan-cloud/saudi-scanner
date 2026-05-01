@@ -185,7 +185,8 @@ async function fetchCandles(sym, period) {
     if(candles.length<60) return null;
     const sorted = [...candles].sort((a,b)=>new Date(a.date)-new Date(b.date));
 
-    // ── شمعة الإطار الحالية الحية ──
+    // ── شمعة الإطار الحالية الحية (فقط أثناء ساعات السوق) ──
+    if(isSaudiMarketOpen()){
     try{
       const qRes=await fetch(`${BASE_URL}/quote/${sym}/`,{headers:{'X-API-Key':API_KEY,'Accept':'application/json'},signal:AbortSignal.timeout(5000)});
       const qText=await qRes.text();
@@ -205,7 +206,6 @@ async function fetchCandles(sym, period) {
             const dayOfWeek=today.getDay();
             const weekStart=new Date(today); weekStart.setDate(today.getDate()-dayOfWeek);
             const weekStartStr=weekStart.toISOString().split('T')[0];
-            // جلب شمعات هذا الأسبوع
             const wRes=await fetch(`${BASE_URL}/historical/${sym}/?period=daily&from=${weekStartStr}&to=${todayStr}`,{headers:{'X-API-Key':API_KEY,'Accept':'application/json'},signal:AbortSignal.timeout(8000)});
             const wText=await wRes.text();
             let wHigh=lh,wLow=ll,wOpen=lo;
@@ -234,6 +234,7 @@ async function fetchCandles(sym, period) {
         }
       }
     }catch(e){}
+    } // end isSaudiMarketOpen
 
     return {closes:sorted.map(c=>parseFloat(c.close)),highs:sorted.map(c=>parseFloat(c.high)),lows:sorted.map(c=>parseFloat(c.low)),last:sorted[sorted.length-1]};
   } catch { return null; }
