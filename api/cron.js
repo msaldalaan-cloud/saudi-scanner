@@ -395,7 +395,10 @@ async function parallelScan(stocks, strategy, concurrency=10) {
 
 // ─── إرسال إيميل ──────────────────────────────────────
 async function sendAlert(toEmail, strategyName, signals, scanTime) {
-  if(!EMAILJS_SID||!EMAILJS_TID||!toEmail||!signals.length) return false;
+  if(!EMAILJS_PK||!EMAILJS_SID||!EMAILJS_TID||!toEmail||!signals.length) {
+    console.log('sendAlert skip - missing:', {pk:!!EMAILJS_PK,sid:!!EMAILJS_SID,tid:!!EMAILJS_TID,email:!!toEmail,signals:signals.length});
+    return false;
+  }
   const TF_AR = {M:'شهري',W:'أسبوعي',D:'يومي'};
   const list = signals.map((s,i)=>
     `${i+1}. ${s.sym} — ${s.name} (${s.sector})\n` +
@@ -403,12 +406,11 @@ async function sendAlert(toEmail, strategyName, signals, scanTime) {
     `   ${s.signals.map(x=>`⚡ ${x.type} ${TF_AR[x.tf]||x.tf}: ${x.detail}`).join(' | ')}`
   ).join('\n\n');
 
-  const privateKey = process.env.EMAILJS_PRIVATE_KEY;
-
   try {
     const payload = {
       service_id:  EMAILJS_SID,
       template_id: EMAILJS_TID,
+      user_id:     EMAILJS_PK,
       template_params: {
         to_email:      toEmail,
         strategy_name: strategyName,
@@ -423,17 +425,13 @@ async function sendAlert(toEmail, strategyName, signals, scanTime) {
       },
     };
 
-    // Server-side يحتاج accessToken (Private Key)
-    if(privateKey) payload.accessToken = privateKey;
-    else payload.user_id = EMAILJS_PK;
-
     const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     const text = await res.text();
-    console.log(`EmailJS [${res.status}]:`, text);
+    console.log(`EmailJS [${res.status}]: ${text}`);
     return res.status === 200;
   } catch(e) {
     console.error('EmailJS error:', e.message);
