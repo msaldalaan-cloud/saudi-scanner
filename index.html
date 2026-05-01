@@ -813,9 +813,15 @@ async function fetchStockTF(sym, tf){
   const sorted=[...candles].sort((a,b)=>new Date(a.date)-new Date(b.date));
 
   // ── شمعة اليوم الحية لكل الإطارات ──
+  // فقط أثناء ساعات السوق (الأحد-الخميس 9:55-15:35 بتوقيت الرياض)
   try{
+    const nowRiyadh=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
+    const dayOfWeek=nowRiyadh.getDay(); // 0=Sun, 4=Thu
+    const timeMin=nowRiyadh.getHours()*60+nowRiyadh.getMinutes();
+    const isMarketOpen=dayOfWeek>=0&&dayOfWeek<=4&&timeMin>=595&&timeMin<=935;
+
     const quote=await apiFetch(`quote/${sym}`);
-    if(quote?.price){
+    if(quote?.price && isMarketOpen){
       const livePrice=parseFloat(quote.price);
       const liveHigh= parseFloat(quote.high||quote.price);
       const liveLow=  parseFloat(quote.low||quote.price);
