@@ -571,12 +571,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════
 const SECTORS={banking:'البنوك',energy:'الطاقة',materials:'المواد الأساسية',telecom:'الاتصالات',real_estate:'العقارات',retail:'التجزئة',healthcare:'الرعاية الصحية',food:'الأغذية',insurance:'التأمين',utilities:'المرافق',transport:'النقل',media:'الإعلام',hotel:'الفنادق',capital:'الاستثمار',pharma:'الأدوية',agri:'الزراعة',construction:'المقاولات'};
 const RAW_MARKET=[
-  {sym:'1010',name:'الرياض المالية',s:'banking'},{sym:'1020',name:'بنك الجزيرة',s:'banking'},
+  {sym:'1010',name:'بنك الرياض المالية',s:'banking'},{sym:'1020',name:'بنك الجزيرة',s:'banking'},
   {sym:'1030',name:'البنك السعودي الفرنسي',s:'banking'},{sym:'1050',name:'البنك البريطاني السعودي',s:'banking'},
   {sym:'1060',name:'البنك السعودي للاستثمار',s:'banking'},{sym:'1080',name:'البنك العربي الوطني',s:'banking'},
   {sym:'1120',name:'مصرف الراجحي',s:'banking'},{sym:'1140',name:'البنك الأهلي السعودي',s:'banking'},
   {sym:'1150',name:'بنك الرياض',s:'banking'},{sym:'1180',name:'الأول',s:'banking'},
-  {sym:'1214',name:'بنك الإنماء',s:'banking'},{sym:'1302',name:'بنك الخليج الدولي',s:'banking'},
+  {sym:'1214',name:'شاكر',s:'banking'},{sym:'1302',name:'بنك الخليج الدولي',s:'banking'},
   {sym:'2030',name:'بترو رابغ',s:'energy'},{sym:'2222',name:'أرامكو السعودية',s:'energy'},
   {sym:'2310',name:'المتقدمة للحفر',s:'energy'},{sym:'2380',name:'بابكو',s:'energy'},
   {sym:'2001',name:'المصافي',s:'materials'},{sym:'2010',name:'سابك',s:'materials'},
@@ -597,8 +597,8 @@ const RAW_MARKET=[
   {sym:'4001',name:'الاتصالات السعودية',s:'telecom'},{sym:'4004',name:'موبايلي',s:'telecom'},
   {sym:'4007',name:'زين السعودية',s:'telecom'},{sym:'4031',name:'بيانات',s:'telecom'},
   {sym:'4020',name:'دار الأركان',s:'real_estate'},{sym:'4090',name:'المملكة القابضة',s:'real_estate'},
-  {sym:'4220',name:'إعمار',s:'real_estate'},{sym:'4230',name:'التعمير',s:'real_estate'},
-  {sym:'4240',name:'اعمار المدينة',s:'real_estate'},{sym:'4250',name:'البلد',s:'real_estate'},
+  {sym:'4220',name:'إعمار المدينة الاقتصادية',s:'real_estate'},{sym:'4230',name:'التعمير',s:'real_estate'},
+  {sym:'4240',name:'إعمار المدينة',s:'real_estate'},{sym:'4250',name:'البلد',s:'real_estate'},
   {sym:'4260',name:'أملاك العقارية',s:'real_estate'},{sym:'4261',name:'روشن',s:'real_estate'},
   {sym:'4270',name:'طيبة',s:'real_estate'},{sym:'4280',name:'ديار',s:'real_estate'},
   {sym:'4003',name:'جرير',s:'retail'},{sym:'4008',name:'بن داود',s:'retail'},
@@ -609,6 +609,7 @@ const RAW_MARKET=[
   {sym:'4130',name:'بوبا العربية',s:'healthcare'},{sym:'4140',name:'نادك',s:'healthcare'},
   {sym:'4160',name:'الحمادي',s:'healthcare'},{sym:'4170',name:'المتقدمة الطبية',s:'healthcare'},
   {sym:'4180',name:'الموارد الطبية',s:'healthcare'},{sym:'4330',name:'سلامة',s:'healthcare'},
+  {sym:'6001',name:'النهدي الطبي',s:'healthcare'},
   {sym:'2270',name:'المراعي',s:'food'},{sym:'6010',name:'سافكو للزراعة',s:'food'},
   {sym:'6013',name:'الزيتون',s:'food'},{sym:'6015',name:'الإنتاج الوطني',s:'food'},
   {sym:'6050',name:'أنعام القابضة',s:'food'},{sym:'6060',name:'نقاء للمياه',s:'food'},
@@ -616,15 +617,15 @@ const RAW_MARKET=[
   {sym:'8030',name:'الأهلي تكافل',s:'insurance'},{sym:'8040',name:'الإتحاد التجاري',s:'insurance'},
   {sym:'8050',name:'وفا تأمين',s:'insurance'},{sym:'8060',name:'الراجحي تكافل',s:'insurance'},
   {sym:'8070',name:'التأمين العام',s:'insurance'},{sym:'8080',name:'الخليجية للتأمين',s:'insurance'},
-  {sym:'8100',name:'ملاذ للتأمين',s:'insurance'},{sym:'8120',name:'الإعادة السعودية',s:'insurance'},
+  {sym:'8100',name:'ملاذ',s:'insurance'},{sym:'8120',name:'الإعادة السعودية',s:'insurance'},
   {sym:'8140',name:'صالحية',s:'insurance'},{sym:'8150',name:'بوبا',s:'insurance'},
-  {sym:'8160',name:'ريلاينس',s:'insurance'},{sym:'8170',name:'أيان للتأمين',s:'insurance'},
+  {sym:'8160',name:'ريلاينس',s:'insurance'},{sym:'8170',name:'أيان',s:'insurance'},
   {sym:'8180',name:'سنبل',s:'insurance'},{sym:'8190',name:'سولا',s:'insurance'},
   {sym:'8200',name:'ساب تكافل',s:'insurance'},{sym:'8210',name:'السعودية للتأمين',s:'insurance'},
   {sym:'8230',name:'ضمان',s:'insurance'},{sym:'8240',name:'أليانز إس إف',s:'insurance'},
   {sym:'8250',name:'ساجر',s:'insurance'},{sym:'8260',name:'صروح',s:'insurance'},
   {sym:'8270',name:'إخلاص',s:'insurance'},{sym:'8280',name:'عناية',s:'insurance'},
-  {sym:'2082',name:'أكوا باور',s:'utilities'},{sym:'5110',name:'كهرباء',s:'utilities'},
+  {sym:'2082',name:'أكوا باور',s:'utilities'},{sym:'5110',name:'شركة الكهرباء',s:'utilities'},
   {sym:'5111',name:'المياه الوطنية',s:'utilities'},
   {sym:'4080',name:'النقل الوطنية',s:'transport'},{sym:'4030',name:'ناقلات',s:'transport'},
   {sym:'4210',name:'روتانا',s:'media'},
@@ -639,7 +640,6 @@ const RAW_MARKET=[
   {sym:'6006',name:'البندر',s:'hotel'},{sym:'6007',name:'طيبة للفنادق',s:'hotel'},
   {sym:'4500',name:'ثمار',s:'agri'},{sym:'4501',name:'العُلا للزراعة',s:'agri'},
   {sym:'4502',name:'الجوف',s:'agri'},{sym:'4503',name:'الروضة',s:'agri'},{sym:'4504',name:'نخيل',s:'agri'},
-  {sym:'6001',name:'النهدي الطبي',s:'pharma'},{sym:'2070',name:'الشرق الأوسط للرعاية',s:'pharma'},
 ];
 const MARKET=Object.values(RAW_MARKET.reduce((a,s)=>{if(!a[s.sym])a[s.sym]={...s,sector:s.s,sectorAr:SECTORS[s.s]||s.s};return a},{}));
 document.getElementById('totalCnt').textContent=MARKET.length;
@@ -1038,6 +1038,13 @@ async function runScan(){
         const tfData={};
         await Promise.all(allTFs.map(async tf=>{tfData[tf]=await fetchStockTF(stock.sym,tf);}));
 
+        // جلب الاسم الحقيقي من quote
+        let realName = stock.name;
+        try {
+          const qData = await apiFetch(`quote/${stock.sym}`);
+          if(qData?.name) realName = qData.name;
+        } catch(e) {}
+
         const price=tfData['D']?.lastCandle ? parseFloat(tfData['D'].lastCandle.close) :
                     tfData['W']?.lastCandle ? parseFloat(tfData['W'].lastCandle.close) : 0;
         const closes_d=tfData['D']?.closes||[];
@@ -1059,7 +1066,7 @@ async function runScan(){
         const stochMTF=stochOn&&stochTFs.length>0?evaluateMTF(stochSigs,stochTFs):{pass:false,partialPass:false,allCondsPass:false};
         const score=calcScoreV2(dmaMTF,stochMTF,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMAPerTF,dmaAboveSMAPerTF,stochAboveSMAPerTF);
 
-        return{...stock,price,chg,score,dmaAboveSMAPerTF,stochAboveSMAPerTF,dmaSigs,stochSigs,dmaMTF,stochMTF,_dmaOn:dmaOn,_stochOn:stochOn,_dmaTFs:dmaTFs,_stochTFs:stochTFs,_dmaSMAPerTF:dmaSMAPerTF,_stochSMAPerTF:stochSMAPerTF,_dmaZeroPerTF:dmaZeroPerTF,_crossPerTF:crossPerTF};
+        return{...stock, name:realName, price,chg,score,dmaAboveSMAPerTF,stochAboveSMAPerTF,dmaSigs,stochSigs,dmaMTF,stochMTF,_dmaOn:dmaOn,_stochOn:stochOn,_dmaTFs:dmaTFs,_stochTFs:stochTFs,_dmaSMAPerTF:dmaSMAPerTF,_stochSMAPerTF:stochSMAPerTF,_dmaZeroPerTF:dmaZeroPerTF,_crossPerTF:crossPerTF};
       }catch(e){return null;}
     }));
     settled.forEach(r=>{if(r.status==='fulfilled'&&r.value) results.push(r.value);});
