@@ -18,7 +18,6 @@ async function kvGet(key) {
   const data = await res.json();
   if (data.result === null || data.result === undefined) return null;
   let val = data.result;
-  // Upstash قد يرجع string مزدوج — نحلّه مرتين لو لازم
   if (typeof val === 'string') {
     try { val = JSON.parse(val); } catch {}
     if (typeof val === 'string') {
@@ -26,6 +25,14 @@ async function kvGet(key) {
     }
   }
   return val;
+}
+
+async function kvSet(key, value) {
+  await fetch(`${KV_URL}/set/${key}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(JSON.stringify(value)),
+  });
 }
 
 // ─── كامل السوق ───────────────────────────────────────
@@ -388,29 +395,50 @@ async function parallelScan(stocks, strategy, concurrency=10) {
 
 // ─── إرسال إيميل ──────────────────────────────────────
 async function sendAlert(toEmail, strategyName, signals, scanTime) {
-  if(!EMAILJS_PK||!EMAILJS_SID||!EMAILJS_TID||!toEmail||!signals.length) return false;
+  if(!EMAILJS_SID||!EMAILJS_TID||!toEmail||!signals.length) return false;
   const TF_AR = {M:'شهري',W:'أسبوعي',D:'يومي'};
   const list = signals.map((s,i)=>
     `${i+1}. ${s.sym} — ${s.name} (${s.sector})\n` +
     `   السعر: ${s.price?.toFixed(2)} ر.س | ${s.chg>=0?'+':''}${s.chg}%\n` +
     `   ${s.signals.map(x=>`⚡ ${x.type} ${TF_AR[x.tf]||x.tf}: ${x.detail}`).join(' | ')}`
   ).join('\n\n');
+
+  const privateKey = process.env.EMAILJS_PRIVATE_KEY;
+
   try {
-    await fetch('https://api.emailjs.com/api/v1.0/email/send',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        service_id:EMAILJS_SID, template_id:EMAILJS_TID, user_id:EMAILJS_PK,
-        template_params:{
-          to_email:toEmail, strategy_name:strategyName,
-          scan_date:new Date().toLocaleDateString('ar-SA'),
-          scan_time:scanTime, total_signals:signals.length,
-          total_scanned:FULL_MARKET.length, stocks_list:list,
-          results_table:list, entry_signals:signals.length, total_results:signals.length,
-        },
-      }),
+    const payload = {
+      service_id:  EMAILJS_SID,
+      template_id: EMAILJS_TID,
+      template_params: {
+        to_email:      toEmail,
+        strategy_name: strategyName,
+        scan_date:     new Date().toLocaleDateString('ar-SA'),
+        scan_time:     scanTime,
+        total_signals: signals.length,
+        total_scanned: FULL_MARKET.length,
+        stocks_list:   list,
+        results_table: list,
+        entry_signals: signals.length,
+        total_results: signals.length,
+      },
+    };
+
+    // Server-side يحتاج accessToken (Private Key)
+    if(privateKey) payload.accessToken = privateKey;
+    else payload.user_id = EMAILJS_PK;
+
+    const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     });
-    return true;
-  } catch { return false; }
+    const text = await res.text();
+    console.log(`EmailJS [${res.status}]:`, text);
+    return res.status === 200;
+  } catch(e) {
+    console.error('EmailJS error:', e.message);
+    return false;
+  }
 }
 
 // ─── MAIN ─────────────────────────────────────────────
@@ -453,20 +481,40 @@ module.exports = async function handler(req, res) {
     console.log(`[${scanTime}] فحص استراتيجية: ${strategy.name}`);
     const signals = await parallelScan(FULL_MARKET, strategy, 10);
 
+    // ── تحقق من الإشارات الجديدة فقط ──
+    const prevKey = `prev_signals_${strategy.id}`;
+    let newSignals = signals;
+    try {
+      const prevRaw = await kvGet(prevKey);
+      const prevSyms = Array.isArray(prevRaw) ? prevRaw : [];
+      // الإشارات الجديدة = أسهم لم تكن في الفحص السابق
+      newSignals = signals.filter(s => !prevSyms.includes(s.sym));
+      console.log(`[${scanTime}] ${strategy.name}: ${signals.length} إشارة، ${newSignals.length} جديدة`);
+    } catch(e) {
+      // لو فشل القراءة، أرسل كل الإشارات
+      newSignals = signals;
+    }
+
+    // احفظ الإشارات الحالية للمقارنة في الفحص القادم
+    try {
+      await kvSet(prevKey, signals.map(s => s.sym));
+    } catch(e) {}
+
     let emailSent = false;
-    if(signals.length>0 && strategy.alertEmail) {
-      emailSent = await sendAlert(strategy.alertEmail, strategy.name, signals, scanTime);
+    if(newSignals.length > 0 && strategy.alertEmail) {
+      emailSent = await sendAlert(strategy.alertEmail, strategy.name, newSignals, scanTime);
     }
 
     report.push({
-      strategy: strategy.name,
-      email: strategy.alertEmail,
-      signals: signals.length,
-      email_sent: emailSent,
-      results: signals,
+      strategy:    strategy.name,
+      email:       strategy.alertEmail,
+      signals:     signals.length,
+      new_signals: newSignals.length,
+      email_sent:  emailSent,
+      results:     newSignals,
     });
 
-    console.log(`[${scanTime}] ${strategy.name}: ${signals.length} إشارة${emailSent?' — إيميل أُرسل':''}`);
+    console.log(`[${scanTime}] ${strategy.name}: ${signals.length} إشارة، ${newSignals.length} جديدة${emailSent?' — إيميل أُرسل':''}`);
   }
 
   const elapsed = ((Date.now()-start)/1000).toFixed(1);
