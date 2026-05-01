@@ -325,11 +325,25 @@ async function scanStockForStrategy(stock, strategy) {
     sma50[tf] = d ? aboveSMA50(d.closes) : null;
   });
 
-  // السعر والتغيير
+  // السعر والتغيير والاسم الحقيقي من quote
   const dayData = tfData['D'] || tfData['W'] || tfData['M'];
   const price = dayData?.last ? parseFloat(dayData.last.close) : 0;
   const prev  = dayData ? dayData.closes[dayData.closes.length-2] : 0;
   const chg   = prev ? +((price-prev)/prev*100).toFixed(2) : 0;
+
+  // جلب الاسم الحقيقي من quote (إذا لم يُجلب بعد في fetchCandles)
+  let realName = stock.name;
+  try {
+    const qRes = await fetch(`${BASE_URL}/quote/${stock.sym}/`,{
+      headers:{'X-API-Key':API_KEY,'Accept':'application/json'},
+      signal:AbortSignal.timeout(5000)
+    });
+    const qText = await qRes.text();
+    if(!qText.trim().startsWith('<')){
+      const q = JSON.parse(qText);
+      if(q?.name) realName = q.name;
+    }
+  } catch(e) {}
 
   // ── تطبيق منطق MTF ──
   function checkIndicator(sigs, tfs, smaPerTF, crossPTF, isSMA) {
@@ -378,7 +392,8 @@ async function scanStockForStrategy(stock, strategy) {
     signals.push({type:'Stoch', tf:trigTF, detail:`K=${stochSigs[trigTF]?.curK?.toFixed(0)} D=${stochSigs[trigTF]?.curD?.toFixed(0)}`});
   }
 
-  return {sym:stock.sym, name:stock.name, sector:stock.sector, price, chg, sma50, signals};
+  if(!signals.length) return null;
+  return {sym:stock.sym, name:realName, sector:stock.sector, price, chg, sma50, signals};
 }
 
 // ─── معالجة متوازية ───────────────────────────────────
@@ -444,6 +459,18 @@ module.exports = async function handler(req, res) {
   const isCron   = !!req.headers['x-vercel-cron'];
   const isManual = req.method==='GET';
   if(!isCron&&!isManual) return res.status(401).json({error:'Unauthorized'});
+
+  // إعادة تعيين الـ cache (لاختبار الإيميل)
+  if(req.query?.reset==='1'){
+    try{
+      const raw=await kvGet(STRAT_KEY)||[];
+      const strats=Array.isArray(raw)?raw:[];
+      for(const s of strats){
+        await fetch(`${KV_URL}/del/prev_signals_${s.id}`,{method:'POST',headers:{Authorization:`Bearer ${KV_TOKEN}`}});
+      }
+      return res.status(200).json({status:'reset',message:'تم مسح cache الإشارات — الفحص القادم سيرسل كل الإشارات'});
+    }catch(e){return res.status(500).json({error:e.message});}
+  }
 
   // تحقق من أوقات السوق (اسمح بالاختبار اليدوي دائماً)
   if(isCron && !isSaudiMarketOpen()) {
