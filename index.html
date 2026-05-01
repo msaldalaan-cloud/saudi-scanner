@@ -1464,8 +1464,8 @@ function renderStrats(){
     return;
   }
   list.innerHTML=strategies.map(s=>{
-    const dmaPart=s.dmaOn?`DMA(${s.dmaTFs?.map(t=>TF_AR[t]||t).join('→')})`:null;
-    const stochPart=s.stochOn?`Stoch(${s.stochTFs?.map(t=>TF_AR[t]||t).join('→')}) ${s.stochK||5}/${s.stochD||3}/${s.stochS||3}`:null;
+    const dmaPart=s.dmaOn&&s.dmaTFs?.length>0?`DMA(${s.dmaTFs.map(t=>TF_AR[t]||t).join('→')})`:null;
+    const stochPart=s.stochOn&&s.stochTFs?.length>0?`Stoch(${s.stochTFs.map(t=>TF_AR[t]||t).join('→')}) ${s.stochK||5}/${s.stochD||3}/${s.stochS||3}`:null;
     const meta=[dmaPart,stochPart].filter(Boolean).join(' · ')||'—';
     return `<div class="strat-item">
       <div>
