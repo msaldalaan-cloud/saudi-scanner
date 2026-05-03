@@ -31,6 +31,9 @@ module.exports = async function handler(req, res) {
   }
 
   const url = new URL(`${BASE_URL}/${path}/`);
+  // تأكد إن from/to يحتويان على تاريخ فقط (بدون وقت)
+  if(queryParams.from) queryParams.from = queryParams.from.split('T')[0].split(' ')[0];
+  if(queryParams.to)   queryParams.to   = queryParams.to.split('T')[0].split(' ')[0];
   Object.entries(queryParams).forEach(([k, v]) => url.searchParams.set(k, v));
 
   try {
