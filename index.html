@@ -1091,24 +1091,12 @@ async function runScan(){
 
 function finalizeScan(results,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMAPerTF){
 
-  // تحقق من ساعات السوق
-  const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-  const dayR=nowR.getDay(), timeR=nowR.getHours()*60+nowR.getMinutes();
-  const isMarketOpen=dayR>=0&&dayR<=4&&timeR>=595&&timeR<=935;
-
   function checkDMA(s){
     if(!dmaOn||dmaTFs.length===0) return null;
     const trigTF=dmaTFs[dmaTFs.length-1];
     const condTFs=dmaTFs.slice(0,-1);
-
-    if(isMarketOpen){
-      // أثناء السوق: يشترط تقاطع DIF فوق DIFMA
-      if(!s.dmaSigs[trigTF].isCrossover) return false;
-    } else {
-      // بعد الإغلاق: يشترط DIF فوق DIFMA فقط (isPositive)
-      if(!s.dmaSigs[trigTF].isPositive) return false;
-    }
-
+    // يظهر طالما DIF فوق DIFMA (يدخل عند التقاطع ويبقى حتى يتراجع)
+    if(!s.dmaSigs[trigTF].isPositive) return false;
     if(s._dmaZeroPerTF[trigTF]&&s.dmaSigs[trigTF].curDma<=0) return false;
     if(dmaSMAPerTF[trigTF]&&!s.dmaAboveSMAPerTF[trigTF]) return false;
     for(const tf of condTFs){
@@ -1123,17 +1111,10 @@ function finalizeScan(results,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMA
     if(!stochOn||stochTFs.length===0) return null;
     const trigTF=stochTFs[stochTFs.length-1];
     const condTFs=stochTFs.slice(0,-1);
-
-    if(isMarketOpen){
-      // أثناء السوق: يشترط تقاطع K فوق D
-      if(!s.stochSigs[trigTF].isCrossover) return false;
-      const trigCross=s._crossPerTF?.[trigTF];
-      if(trigCross?.enabled && s.stochSigs[trigTF].curK >= trigCross.val) return false;
-    } else {
-      // بعد الإغلاق: يشترط K فوق D فقط (isPositive)
-      if(!s.stochSigs[trigTF].isPositive) return false;
-    }
-
+    // يظهر طالما K فوق D (يدخل عند التقاطع ويبقى حتى يتراجع)
+    if(!s.stochSigs[trigTF].isPositive) return false;
+    const trigCross=s._crossPerTF?.[trigTF];
+    if(trigCross?.enabled && s.stochSigs[trigTF].curK >= trigCross.val) return false;
     if(stochSMAPerTF[trigTF]&&!s.stochAboveSMAPerTF[trigTF]) return false;
     for(const tf of condTFs){
       if(!s.stochSigs[tf].isPositive) return false;
