@@ -351,17 +351,21 @@ async function scanStockForStrategy(stock, strategy) {
   } catch(e) {}
 
   // ── تطبيق منطق MTF ──
-  function checkIndicator(sigs, tfs, smaPerTF, crossPTF, isSMA) {
+  function checkIndicator(sigs, tfs, smaPerTF, crossPTF, isDMA) {
     if(!tfs||tfs.length===0) return null;
     const trigTF = tfs[tfs.length-1];
     const condTFs = tfs.slice(0,-1);
 
-    // تقاطع على الزناد = شرط أساسي
-    if(!sigs[trigTF]?.isCrossover) return false;
-
-    // فلتر التقاطع (cross threshold للـ Stoch)
-    if(crossPTF?.[trigTF]?.enabled) {
-      if(sigs[trigTF].curK >= crossPTF[trigTF].val) return false;
+    if(isSaudiMarketOpen()){
+      // أثناء السوق: يشترط تقاطع
+      if(!sigs[trigTF]?.isCrossover) return false;
+      // فلتر التقاطع (cross threshold للـ Stoch)
+      if(!isDMA && crossPTF?.[trigTF]?.enabled) {
+        if(sigs[trigTF].curK >= crossPTF[trigTF].val) return false;
+      }
+    } else {
+      // بعد الإغلاق: يشترط isPositive فقط
+      if(!sigs[trigTF]?.isPositive) return false;
     }
 
     // SMA50 على الزناد
