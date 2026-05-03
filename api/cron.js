@@ -172,11 +172,14 @@ function isSaudiMarketOpen() {
 // ─── جلب شمعات ────────────────────────────────────────
 async function fetchCandles(sym, period) {
   try {
-    const to = new Date(), from = new Date();
+    // استخدام تاريخ الرياض
+    const nowR = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
+    const toStr = nowR.toISOString().split('T')[0];
+    const from = new Date(nowR);
     if      (period==='daily')   from.setFullYear(from.getFullYear()-2);
     else if (period==='weekly')  from.setFullYear(from.getFullYear()-7);
     else if (period==='monthly') from.setFullYear(from.getFullYear()-25);
-    const url = `${BASE_URL}/historical/${sym}/?period=${period}&from=${from.toISOString().split('T')[0]}&to=${to.toISOString().split('T')[0]}`;
+    const url = `${BASE_URL}/historical/${sym}/?period=${period}&from=${from.toISOString().split('T')[0]}&to=${toStr}`;
     const res = await fetch(url,{headers:{'X-API-Key':API_KEY,'Accept':'application/json'},signal:AbortSignal.timeout(10000)});
     const text = await res.text();
     if(!text||text.trim().startsWith('<')) return null;
