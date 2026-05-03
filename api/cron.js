@@ -355,22 +355,11 @@ async function scanStockForStrategy(stock, strategy) {
     if(!tfs||tfs.length===0) return null;
     const trigTF = tfs[tfs.length-1];
     const condTFs = tfs.slice(0,-1);
-
-    if(isSaudiMarketOpen()){
-      // أثناء السوق: يشترط تقاطع
-      if(!sigs[trigTF]?.isCrossover) return false;
-      // فلتر التقاطع (cross threshold للـ Stoch)
-      if(!isDMA && crossPTF?.[trigTF]?.enabled) {
-        if(sigs[trigTF].curK >= crossPTF[trigTF].val) return false;
-      }
-    } else {
-      // بعد الإغلاق: يشترط isPositive فقط
-      if(!sigs[trigTF]?.isPositive) return false;
-    }
-
+    // يظهر طالما الإشارة إيجابية (يدخل عند التقاطع ويبقى حتى يتراجع)
+    if(!sigs[trigTF]?.isPositive) return false;
+    // فلتر التقاطع (cross threshold للـ Stoch) — يُطبّق فقط عند الدخول لكن لا يُطرد السهم بعدها
     // SMA50 على الزناد
     if(smaPerTF?.[trigTF] && sma50[trigTF]===false) return false;
-
     // الإطارات الأبطأ = شروط الاتجاه
     for(const tf of condTFs) {
       if(!sigs[tf]?.isPositive) return false;
@@ -515,16 +504,18 @@ module.exports = async function handler(req, res) {
     console.log(`[${scanTime}] فحص استراتيجية: ${strategy.name}`);
     const signals = await parallelScan(FULL_MARKET, strategy, 10);
 
-    // ── تحقق من الإشارات الجديدة فقط (مع reset يومي) ──
-    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD بتوقيت السيرفر
+    // ── الإشارات الجديدة للإيميل = تقاطع جديد لم يُرسل اليوم ──
+    const today = new Date().toLocaleDateString('en-CA');
     const prevKey = `prev_signals_${strategy.id}_${today}`;
+    // الإشارات الإيجابية المستمرة (للعرض)
+    const allPositive = signals;
+    // الإشارات الجديدة للإيميل = أسهم ما أُرسلت اليوم
     let newSignals = signals;
     try {
       const prevRaw = await kvGet(prevKey);
       const prevSyms = Array.isArray(prevRaw) ? prevRaw : [];
-      // الإشارات الجديدة = أسهم لم تُرسل إيميل عنها اليوم
       newSignals = signals.filter(s => !prevSyms.includes(s.sym));
-      console.log(`[${scanTime}] ${strategy.name}: ${signals.length} إشارة، ${newSignals.length} جديدة اليوم`);
+      console.log(`[${scanTime}] ${strategy.name}: ${signals.length} إيجابية، ${newSignals.length} جديدة`);
     } catch(e) {
       newSignals = signals;
     }
