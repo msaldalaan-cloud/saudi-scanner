@@ -183,7 +183,11 @@ async function fetchCandles(sym, period) {
     const json = JSON.parse(text);
     const candles = json?.data||json?.results||json?.candles||[];
     if(candles.length<60) return null;
-    const sorted = [...candles].sort((a,b)=>new Date(a.date)-new Date(b.date));
+    const filtered=candles.filter(c=>{
+      const d=new Date(c.date); return d.getDay()!==5 && d.getDay()!==6;
+    });
+    if(filtered.length<60) return null;
+    const sorted = [...filtered].sort((a,b)=>new Date(a.date)-new Date(b.date));
 
     // ── شمعة الإطار الحالية الحية (فقط أثناء ساعات السوق) ──
     if(isSaudiMarketOpen()){
@@ -275,7 +279,7 @@ function calcStoch(highs,lows,closes,kP=5,dP=3,sl=3) {
   const curK=smoothK[smoothK.length-1],prevK=smoothK[smoothK.length-2];
   const curD=D[D.length-1],prevD=D[D.length-2];
   return{curK,curD,prevK,prevD,
-    isPositive:curK>curD,isCrossover:prevK<prevD&&curK>curD,isBearish:curK<curD};
+    isPositive:curK>curD,isCrossover:prevK<(prevD-2)&&curK>curD,isBearish:curK<curD};
 }
 
 // ─── SMA50 ────────────────────────────────────────────
@@ -507,24 +511,29 @@ module.exports = async function handler(req, res) {
     console.log(`[${scanTime}] فحص استراتيجية: ${strategy.name}`);
     const signals = await parallelScan(FULL_MARKET, strategy, 10);
 
-    // ── تحقق من الإشارات الجديدة فقط ──
-    const prevKey = `prev_signals_${strategy.id}`;
+    // ── تحقق من الإشارات الجديدة فقط (مع reset يومي) ──
+    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD بتوقيت السيرفر
+    const prevKey = `prev_signals_${strategy.id}_${today}`;
     let newSignals = signals;
     try {
       const prevRaw = await kvGet(prevKey);
       const prevSyms = Array.isArray(prevRaw) ? prevRaw : [];
-      // الإشارات الجديدة = أسهم لم تكن في الفحص السابق
+      // الإشارات الجديدة = أسهم لم تُرسل إيميل عنها اليوم
       newSignals = signals.filter(s => !prevSyms.includes(s.sym));
-      console.log(`[${scanTime}] ${strategy.name}: ${signals.length} إشارة، ${newSignals.length} جديدة`);
+      console.log(`[${scanTime}] ${strategy.name}: ${signals.length} إشارة، ${newSignals.length} جديدة اليوم`);
     } catch(e) {
-      // لو فشل القراءة، أرسل كل الإشارات
       newSignals = signals;
     }
 
-    // احفظ الإشارات الحالية للمقارنة في الفحص القادم
-    try {
-      await kvSet(prevKey, signals.map(s => s.sym));
-    } catch(e) {}
+    // احفظ الأسهم التي أُرسل عنها إيميل اليوم
+    if(newSignals.length > 0) {
+      try {
+        const prevRaw2 = await kvGet(prevKey);
+        const prevSyms2 = Array.isArray(prevRaw2) ? prevRaw2 : [];
+        const allSentToday = [...new Set([...prevSyms2, ...newSignals.map(s => s.sym)])];
+        await kvSet(prevKey, allSentToday);
+      } catch(e) {}
+    }
 
     let emailSent = false;
     if(newSignals.length > 0 && strategy.alertEmail) {
