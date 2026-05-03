@@ -799,14 +799,17 @@ async function apiFetch(path, params={}){
 async function fetchStockTF(sym, tf){
   const periodMap={D:'daily',W:'weekly',M:'monthly'};
   const period=periodMap[tf];
-  const to=new Date(), from=new Date();
+  // استخدام تاريخ الرياض بدل UTC
+  const nowRiyadh=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
+  const toStr=nowRiyadh.toISOString().split('T')[0];
+  const from=new Date(nowRiyadh);
   if(period==='daily')   from.setFullYear(from.getFullYear()-2);
   else if(period==='weekly')  from.setFullYear(from.getFullYear()-7);
   else if(period==='monthly') from.setFullYear(from.getFullYear()-25);
   const data=await apiFetch(`historical/${sym}`,{
     period,
     from:from.toISOString().split('T')[0],
-    to:to.toISOString().split('T')[0],
+    to:toStr,
   });
   const candles=data?.data||data?.results||data?.candles||[];
   if(candles.length<60) return null;
