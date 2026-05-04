@@ -192,6 +192,18 @@ async function fetchCandles(sym, period) {
     if(filtered.length<60) return null;
     const sorted = [...filtered].sort((a,b)=>new Date(a.date)-new Date(b.date));
 
+    // ── تحقق إن البيانات محدّثة لآخر يوم تداول ──
+    if(period==='daily'){
+      const lastDate=sorted[sorted.length-1]?.date?.split('T')[0];
+      const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
+      let lastTrading=new Date(nowR);
+      while(lastTrading.getDay()===5||lastTrading.getDay()===6){
+        lastTrading.setDate(lastTrading.getDate()-1);
+      }
+      const lastTradingStr=lastTrading.toISOString().split('T')[0];
+      if(lastDate!==lastTradingStr) return null;
+    }
+
     // ── شمعة الإطار الحالية الحية (فقط أثناء ساعات السوق) ──
     if(isSaudiMarketOpen()){
     try{
