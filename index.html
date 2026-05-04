@@ -824,13 +824,22 @@ async function fetchStockTF(sym, tf){
   if(period==='daily'){
     const lastCandleDate=sorted[sorted.length-1]?.date?.split('T')[0];
     const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-    // آخر يوم تداول = آخر أحد-خميس
+    const timeMin=nowR.getHours()*60+nowR.getMinutes();
+    const isMarketOpen=nowR.getDay()>=0&&nowR.getDay()<=4&&timeMin>=595&&timeMin<=935;
+    // آخر يوم تداول: إذا السوق مفتوح الآن = اليوم، وإلا = آخر أحد-خميس سابق
     let lastTrading=new Date(nowR);
-    while(lastTrading.getDay()===5||lastTrading.getDay()===6){
+    if(!isMarketOpen){
+      // ارجع ليوم تداول سابق
       lastTrading.setDate(lastTrading.getDate()-1);
+      while(lastTrading.getDay()===5||lastTrading.getDay()===6){
+        lastTrading.setDate(lastTrading.getDate()-1);
+      }
+    } else {
+      while(lastTrading.getDay()===5||lastTrading.getDay()===6){
+        lastTrading.setDate(lastTrading.getDate()-1);
+      }
     }
     const lastTradingStr=lastTrading.toISOString().split('T')[0];
-    // إذا آخر شمعة ليست من آخر يوم تداول → تجاهل
     if(lastCandleDate!==lastTradingStr) return null;
   }
 
