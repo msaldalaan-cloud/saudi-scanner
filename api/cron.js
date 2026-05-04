@@ -196,9 +196,18 @@ async function fetchCandles(sym, period) {
     if(period==='daily'){
       const lastDate=sorted[sorted.length-1]?.date?.split('T')[0];
       const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
+      const timeMin=nowR.getHours()*60+nowR.getMinutes();
+      const marketOpen=nowR.getDay()>=0&&nowR.getDay()<=4&&timeMin>=595&&timeMin<=935;
       let lastTrading=new Date(nowR);
-      while(lastTrading.getDay()===5||lastTrading.getDay()===6){
+      if(!marketOpen){
         lastTrading.setDate(lastTrading.getDate()-1);
+        while(lastTrading.getDay()===5||lastTrading.getDay()===6){
+          lastTrading.setDate(lastTrading.getDate()-1);
+        }
+      } else {
+        while(lastTrading.getDay()===5||lastTrading.getDay()===6){
+          lastTrading.setDate(lastTrading.getDate()-1);
+        }
       }
       const lastTradingStr=lastTrading.toISOString().split('T')[0];
       if(lastDate!==lastTradingStr) return null;
