@@ -820,6 +820,20 @@ async function fetchStockTF(sym, tf){
   if(filtered.length<60) return null;
   const sorted=[...filtered].sort((a,b)=>new Date(a.date)-new Date(b.date));
 
+  // ── تحقق إن البيانات محدّثة لآخر يوم تداول ──
+  if(period==='daily'){
+    const lastCandleDate=sorted[sorted.length-1]?.date?.split('T')[0];
+    const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
+    // آخر يوم تداول = آخر أحد-خميس
+    let lastTrading=new Date(nowR);
+    while(lastTrading.getDay()===5||lastTrading.getDay()===6){
+      lastTrading.setDate(lastTrading.getDate()-1);
+    }
+    const lastTradingStr=lastTrading.toISOString().split('T')[0];
+    // إذا آخر شمعة ليست من آخر يوم تداول → تجاهل
+    if(lastCandleDate!==lastTradingStr) return null;
+  }
+
   // ── شمعة اليوم الحية لكل الإطارات ──
   // فقط أثناء ساعات السوق (الأحد-الخميس 9:55-15:35 بتوقيت الرياض)
   try{
