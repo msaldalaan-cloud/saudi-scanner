@@ -992,7 +992,7 @@ function calcStoch(highs,lows,closes,kP=5,dP=3,sl=3){
   return{
     curK, curD, prevK, prevD,
     isPositive:  curK > curD,
-    isCrossover: prevK < (prevD - 2) && curK > curD,
+    isCrossover: prevK < prevD && curK > curD,
     isBearish:   curK < curD,
   };
 }
