@@ -342,6 +342,13 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
                 <div class="toggle-track"></div><div class="toggle-thumb"></div>
               </label>
             </div>
+            <div class="tf-sma-inline tf-sma-inactive" id="dma-trig-M">
+              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
+              <label class="toggle toggle-sm">
+                <input type="checkbox" id="dmaTrig_M" onchange="syncTrigTF('dma','M')">
+                <div class="toggle-track"></div><div class="toggle-thumb"></div>
+              </label>
+            </div>
           </div>
 
           <!-- أسبوعي -->
@@ -361,6 +368,13 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
                 <div class="toggle-track"></div><div class="toggle-thumb"></div>
               </label>
             </div>
+            <div class="tf-sma-inline" id="dma-trig-W">
+              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
+              <label class="toggle toggle-sm">
+                <input type="checkbox" id="dmaTrig_W" onchange="syncTrigTF('dma','W')">
+                <div class="toggle-track"></div><div class="toggle-thumb"></div>
+              </label>
+            </div>
           </div>
 
           <!-- يومي -->
@@ -377,6 +391,13 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
               <span class="sma-tag-inline" style="color:var(--orange);background:var(--orange-dim);border-color:rgba(249,115,22,.2)">DIF > 0</span>
               <label class="toggle toggle-sm">
                 <input type="checkbox" id="dmaZero_D">
+                <div class="toggle-track"></div><div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="tf-sma-inline tf-sma-inactive" id="dma-trig-D">
+              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
+              <label class="toggle toggle-sm">
+                <input type="checkbox" id="dmaTrig_D" onchange="syncTrigTF('dma','D')">
                 <div class="toggle-track"></div><div class="toggle-thumb"></div>
               </label>
             </div>
@@ -424,6 +445,13 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
                 <div class="toggle-track"></div><div class="toggle-thumb"></div>
               </label>
             </div>
+            <div class="tf-sma-inline tf-sma-inactive" id="stoch-trig-M">
+              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
+              <label class="toggle toggle-sm">
+                <input type="checkbox" id="stochTrig_M" onchange="syncTrigTF('stoch','M')">
+                <div class="toggle-track"></div><div class="toggle-thumb"></div>
+              </label>
+            </div>
           </div>
 
           <!-- أسبوعي -->
@@ -443,6 +471,13 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
                 <div class="toggle-track"></div><div class="toggle-thumb"></div>
               </label>
             </div>
+            <div class="tf-sma-inline" id="stoch-trig-W">
+              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
+              <label class="toggle toggle-sm">
+                <input type="checkbox" id="stochTrig_W" onchange="syncTrigTF('stoch','W')">
+                <div class="toggle-track"></div><div class="toggle-thumb"></div>
+              </label>
+            </div>
           </div>
 
           <!-- يومي -->
@@ -459,6 +494,13 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
               <input type="number" class="cross-num-sm" id="crossVal_D" value="30" min="1" max="99" disabled>
               <label class="toggle toggle-sm">
                 <input type="checkbox" id="crossEnabled_D" onchange="syncCrossTF('D')">
+                <div class="toggle-track"></div><div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="tf-sma-inline" id="stoch-trig-D">
+              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
+              <label class="toggle toggle-sm">
+                <input type="checkbox" id="stochTrig_D" onchange="syncTrigTF('stoch','D')">
                 <div class="toggle-track"></div><div class="toggle-thumb"></div>
               </label>
             </div>
@@ -695,6 +737,31 @@ function syncCrossTF(tf){try{
   const valEl=document.getElementById(`crossVal_${tf}`);
   if(valEl) valEl.disabled=!on;
 }catch(e){}}
+
+// زناد مخصص لكل إطار — يلغي الزناد النهائي العام
+function syncTrigTF(ind, tf){try{
+  const checked=document.getElementById(`${ind}Trig_${tf}`)?.checked;
+  // إذا شغّلناه نطفي باقي الزنادات لنفس المؤشر
+  if(checked){
+    ['M','W','D'].forEach(t=>{
+      if(t!==tf){
+        const el=document.getElementById(`${ind}Trig_${t}`);
+        if(el) el.checked=false;
+      }
+    });
+  }
+  updateMTFHint();
+}catch(e){}}
+
+// جلب الإطار المحدد كزناد لكل مؤشر
+function getTrigTF(ind){
+  for(const tf of ['M','W','D']){
+    const el=document.getElementById(`${ind}Trig_${tf}`);
+    if(el?.checked) return tf;
+  }
+  return null; // لا يوجد زناد مخصص → يستخدم الزناد النهائي العام
+}
+
 function getCrossPerTF(){
   const result={};
   ['M','W','D'].forEach(tf=>{
@@ -738,6 +805,15 @@ function toggleTF(btn){try{
       const crossCb=document.getElementById(`crossEnabled_${tf}`);
       if(crossCb) crossCb.checked=false;
       syncCrossTF(tf);
+    }
+  }
+  // زناد مخصص
+  const trigDiv=document.getElementById(`${ind}-trig-${tf}`);
+  if(trigDiv){
+    trigDiv.classList.toggle('tf-sma-inactive',!isNowSelected);
+    if(!isNowSelected){
+      const trigCb=document.getElementById(`${ind}Trig_${tf}`);
+      if(trigCb) trigCb.checked=false;
     }
   }
 }catch(e){}}
@@ -796,29 +872,64 @@ async function apiFetch(path, params={}){
   return res.json();
 }
 
+// ── بناء شمعات أسبوعية/شهرية من بيانات يومية ──
+function buildCandles(dailyCandles, tf){
+  const sorted=[...dailyCandles].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if(tf==='D') return sorted;
+  const groups={};
+  for(const c of sorted){
+    const d=new Date(c.date);
+    let key;
+    if(tf==='W'){
+      // مفتاح الأسبوع: السنة + رقم الأسبوع (الأحد = بداية الأسبوع)
+      const day=d.getDay(); // 0=Sun
+      const weekStart=new Date(d);
+      weekStart.setDate(d.getDate()-day);
+      const y=weekStart.getFullYear();
+      const m=String(weekStart.getMonth()+1).padStart(2,'0');
+      const dd=String(weekStart.getDate()).padStart(2,'0');
+      key=`${y}-${m}-${dd}`;
+    } else {
+      // شهري: السنة-الشهر
+      key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    }
+    if(!groups[key]) groups[key]=[];
+    groups[key].push(c);
+  }
+  return Object.entries(groups).sort(([a],[b])=>a.localeCompare(b)).map(([key,candles])=>({
+    date: tf==='W' ? key : key+'-01',
+    open:  candles[0].open,
+    high:  Math.max(...candles.map(c=>parseFloat(c.high))),
+    low:   Math.min(...candles.map(c=>parseFloat(c.low))),
+    close: candles[candles.length-1].close,
+    volume: candles.reduce((s,c)=>s+parseFloat(c.volume||0),0),
+  }));
+}
+
 async function fetchStockTF(sym, tf){
-  const periodMap={D:'daily',W:'weekly',M:'monthly'};
-  const period=periodMap[tf];
-  // استخدام تاريخ الرياض بدل UTC
+  // دائماً نجلب البيانات اليومية ونبني منها الأطر الأخرى
   const nowRiyadh=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
   const toStr=nowRiyadh.toISOString().split('T')[0];
   const from=new Date(nowRiyadh);
-  if(period==='daily')   from.setFullYear(from.getFullYear()-2);
-  else if(period==='weekly')  from.setFullYear(from.getFullYear()-7);
-  else if(period==='monthly') from.setFullYear(from.getFullYear()-25);
+  // نجلب كافية للإطار المطلوب
+  if(tf==='D')   from.setFullYear(from.getFullYear()-2);
+  else if(tf==='W') from.setFullYear(from.getFullYear()-7);
+  else if(tf==='M') from.setFullYear(from.getFullYear()-25);
   const data=await apiFetch(`historical/${sym}`,{
-    period,
+    period:'daily',
     from:from.toISOString().split('T')[0],
     to:toStr,
   });
-  const candles=data?.data||data?.results||data?.candles||[];
-  if(candles.length<60) return null;
-  // استبعاد الجمعة (5) والسبت (6) من البيانات
-  const filtered=candles.filter(c=>{
-    const d=new Date(c.date); return d.getDay()!==5 && d.getDay()!==6;
+  const rawCandles=data?.data||data?.results||data?.candles||[];
+  // استبعاد الجمعة والسبت
+  const dailyFiltered=rawCandles.filter(c=>{
+    const d=new Date(c.date); return d.getDay()!==5&&d.getDay()!==6;
   });
-  if(filtered.length<60) return null;
-  const sorted=[...filtered].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  // بناء الشمعات حسب الإطار
+  const built=buildCandles(dailyFiltered, tf);
+  const candles=built;
+  if(candles.length<60) return null;
+  const sorted=[...candles].sort((a,b)=>new Date(a.date)-new Date(b.date));
 
   // ── تحقق إن البيانات محدّثة لآخر يوم تداول ──
   if(period==='daily'){
@@ -1121,14 +1232,16 @@ function finalizeScan(results,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMA
 
   function checkStoch(s){
     if(!stochOn||stochTFs.length===0) return null;
-    const trigTF=stochTFs[stochTFs.length-1];
-    const condTFs=stochTFs.slice(0,-1);
+    // الزناد المخصص أو آخر إطار افتراضياً
+    const customTrig=getTrigTF('stoch');
+    const trigTF = customTrig && stochTFs.includes(customTrig) ? customTrig : stochTFs[stochTFs.length-1];
+    const condTFs = stochTFs.filter(tf=>tf!==trigTF);
     // الزناد: تقاطع K فوق D في آخر شمعة فقط
     if(!s.stochSigs[trigTF].isCrossover) return false;
     const trigCross=s._crossPerTF?.[trigTF];
     if(trigCross?.enabled && s.stochSigs[trigTF].curK >= trigCross.val) return false;
     if(stochSMAPerTF[trigTF]&&!s.stochAboveSMAPerTF[trigTF]) return false;
-    // الشروط الأبطأ: K فوق D (isPositive) بغض النظر عن وقت العبور
+    // الشروط: K فوق D (isPositive) بغض النظر عن وقت العبور
     for(const tf of condTFs){
       if(!s.stochSigs[tf].isPositive) return false;
       const condCross=s._crossPerTF?.[tf];
@@ -1140,13 +1253,15 @@ function finalizeScan(results,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMA
 
   function checkDMA(s){
     if(!dmaOn||dmaTFs.length===0) return null;
-    const trigTF=dmaTFs[dmaTFs.length-1];
-    const condTFs=dmaTFs.slice(0,-1);
+    // الزناد المخصص أو آخر إطار افتراضياً
+    const customTrig=getTrigTF('dma');
+    const trigTF = customTrig && dmaTFs.includes(customTrig) ? customTrig : dmaTFs[dmaTFs.length-1];
+    const condTFs = dmaTFs.filter(tf=>tf!==trigTF);
     // الزناد: تقاطع DIF فوق DIFMA في آخر شمعة فقط
     if(!s.dmaSigs[trigTF].isCrossover) return false;
     if(s._dmaZeroPerTF[trigTF]&&s.dmaSigs[trigTF].curDma<=0) return false;
     if(dmaSMAPerTF[trigTF]&&!s.dmaAboveSMAPerTF[trigTF]) return false;
-    // الشروط الأبطأ: DIF فوق DIFMA (isPositive)
+    // الشروط: DIF فوق DIFMA (isPositive)
     for(const tf of condTFs){
       if(!s.dmaSigs[tf].isPositive) return false;
       if(s._dmaZeroPerTF[tf]&&s.dmaSigs[tf].curDma<=0) return false;
