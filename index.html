@@ -1119,36 +1119,38 @@ async function runScan(){
 
 function finalizeScan(results,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMAPerTF){
 
-  function checkDMA(s){
-    if(!dmaOn||dmaTFs.length===0) return null;
-    const trigTF=dmaTFs[dmaTFs.length-1];
-    const condTFs=dmaTFs.slice(0,-1);
-    // يظهر طالما DIF فوق DIFMA (يدخل عند التقاطع ويبقى حتى يتراجع)
-    if(!s.dmaSigs[trigTF].isPositive) return false;
-    if(s._dmaZeroPerTF[trigTF]&&s.dmaSigs[trigTF].curDma<=0) return false;
-    if(dmaSMAPerTF[trigTF]&&!s.dmaAboveSMAPerTF[trigTF]) return false;
-    for(const tf of condTFs){
-      if(!s.dmaSigs[tf].isPositive) return false;
-      if(s._dmaZeroPerTF[tf]&&s.dmaSigs[tf].curDma<=0) return false;
-      if(dmaSMAPerTF[tf]&&!s.dmaAboveSMAPerTF[tf]) return false;
-    }
-    return true;
-  }
-
   function checkStoch(s){
     if(!stochOn||stochTFs.length===0) return null;
     const trigTF=stochTFs[stochTFs.length-1];
     const condTFs=stochTFs.slice(0,-1);
-    // يظهر طالما K فوق D (يدخل عند التقاطع ويبقى حتى يتراجع)
-    if(!s.stochSigs[trigTF].isPositive) return false;
+    // الزناد: تقاطع K فوق D في آخر شمعة فقط
+    if(!s.stochSigs[trigTF].isCrossover) return false;
     const trigCross=s._crossPerTF?.[trigTF];
     if(trigCross?.enabled && s.stochSigs[trigTF].curK >= trigCross.val) return false;
     if(stochSMAPerTF[trigTF]&&!s.stochAboveSMAPerTF[trigTF]) return false;
+    // الشروط الأبطأ: K فوق D (isPositive) بغض النظر عن وقت العبور
     for(const tf of condTFs){
       if(!s.stochSigs[tf].isPositive) return false;
       const condCross=s._crossPerTF?.[tf];
       if(condCross?.enabled && s.stochSigs[tf].curK >= condCross.val) return false;
       if(stochSMAPerTF[tf]&&!s.stochAboveSMAPerTF[tf]) return false;
+    }
+    return true;
+  }
+
+  function checkDMA(s){
+    if(!dmaOn||dmaTFs.length===0) return null;
+    const trigTF=dmaTFs[dmaTFs.length-1];
+    const condTFs=dmaTFs.slice(0,-1);
+    // الزناد: تقاطع DIF فوق DIFMA في آخر شمعة فقط
+    if(!s.dmaSigs[trigTF].isCrossover) return false;
+    if(s._dmaZeroPerTF[trigTF]&&s.dmaSigs[trigTF].curDma<=0) return false;
+    if(dmaSMAPerTF[trigTF]&&!s.dmaAboveSMAPerTF[trigTF]) return false;
+    // الشروط الأبطأ: DIF فوق DIFMA (isPositive)
+    for(const tf of condTFs){
+      if(!s.dmaSigs[tf].isPositive) return false;
+      if(s._dmaZeroPerTF[tf]&&s.dmaSigs[tf].curDma<=0) return false;
+      if(dmaSMAPerTF[tf]&&!s.dmaAboveSMAPerTF[tf]) return false;
     }
     return true;
   }
