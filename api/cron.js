@@ -306,7 +306,7 @@ function calcStoch(highs,lows,closes,kP=5,dP=3,sl=3) {
   const curK=smoothK[smoothK.length-1],prevK=smoothK[smoothK.length-2];
   const curD=D[D.length-1],prevD=D[D.length-2];
   return{curK,curD,prevK,prevD,
-    isPositive:curK>curD,isCrossover:prevK<(prevD-2)&&curK>curD,isBearish:curK<curD};
+    isPositive:curK>curD,isCrossover:prevK<prevD&&curK>curD,isBearish:curK<curD};
 }
 
 // ─── SMA50 ────────────────────────────────────────────
