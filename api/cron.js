@@ -382,12 +382,13 @@ async function scanStockForStrategy(stock, strategy) {
     if(!tfs||tfs.length===0) return null;
     const trigTF = tfs[tfs.length-1];
     const condTFs = tfs.slice(0,-1);
-    // يظهر طالما الإشارة إيجابية (يدخل عند التقاطع ويبقى حتى يتراجع)
-    if(!sigs[trigTF]?.isPositive) return false;
-    // فلتر التقاطع (cross threshold للـ Stoch) — يُطبّق فقط عند الدخول لكن لا يُطرد السهم بعدها
-    // SMA50 على الزناد
+    // الزناد: تقاطع في آخر شمعة فقط
+    if(!sigs[trigTF]?.isCrossover) return false;
+    if(!isDMA && crossPTF?.[trigTF]?.enabled) {
+      if(sigs[trigTF].curK >= crossPTF[trigTF].val) return false;
+    }
     if(smaPerTF?.[trigTF] && sma50[trigTF]===false) return false;
-    // الإطارات الأبطأ = شروط الاتجاه
+    // الشروط الأبطأ: isPositive فقط
     for(const tf of condTFs) {
       if(!sigs[tf]?.isPositive) return false;
       if(smaPerTF?.[tf] && sma50[tf]===false) return false;
