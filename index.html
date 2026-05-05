@@ -826,10 +826,8 @@ async function fetchStockTF(sym, tf){
     const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
     const timeMin=nowR.getHours()*60+nowR.getMinutes();
     const isMarketOpen=nowR.getDay()>=0&&nowR.getDay()<=4&&timeMin>=595&&timeMin<=935;
-    // آخر يوم تداول: إذا السوق مفتوح الآن = اليوم، وإلا = آخر أحد-خميس سابق
     let lastTrading=new Date(nowR);
     if(!isMarketOpen){
-      // ارجع ليوم تداول سابق
       lastTrading.setDate(lastTrading.getDate()-1);
       while(lastTrading.getDay()===5||lastTrading.getDay()===6){
         lastTrading.setDate(lastTrading.getDate()-1);
@@ -839,7 +837,11 @@ async function fetchStockTF(sym, tf){
         lastTrading.setDate(lastTrading.getDate()-1);
       }
     }
-    const lastTradingStr=lastTrading.toISOString().split('T')[0];
+    // استخدم تاريخ الرياض مباشرة (YYYY-MM-DD)
+    const y=lastTrading.getFullYear();
+    const m=String(lastTrading.getMonth()+1).padStart(2,'0');
+    const d=String(lastTrading.getDate()).padStart(2,'0');
+    const lastTradingStr=`${y}-${m}-${d}`;
     if(lastCandleDate!==lastTradingStr) return null;
   }
 
