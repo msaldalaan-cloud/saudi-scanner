@@ -290,17 +290,6 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
   <div class="panel">
     <div class="panel-title">إعدادات المؤشرات</div>
 
-    <!-- ── TRIGGER SELECTOR ── -->
-    <div class="trigger-bar">
-      <div class="trigger-label">🎯 زناد الدخول النهائي</div>
-      <div class="trigger-pills">
-        <button class="trig-pill" id="trigDMA"  onclick="setTrigger('dma')">DMA فقط</button>
-        <button class="trig-pill" id="trigStoch" onclick="setTrigger('stoch')">Stoch فقط</button>
-        <button class="trig-pill sel" id="trigBoth"  onclick="setTrigger('both')">الاثنين معاً</button>
-      </div>
-      <div class="trigger-desc" id="trigDesc">كلا المؤشرين لازم يتقاطعان في نفس الوقت</div>
-    </div>
-
     <div class="indicators-grid">
 
       <!-- DMA Card -->
@@ -701,26 +690,6 @@ function toast(msg,type='success'){
   const t=document.getElementById('toast');
   t.textContent=msg;t.className='toast show '+type;
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);
-}
-
-// ══════════════════════════════════════════════
-//  TRIGGER MODE
-// ══════════════════════════════════════════════
-let triggerMode='both'; // 'dma' | 'stoch' | 'both'
-
-const TRIG_DESC={
-  dma:  'الزناد = تقاطع DMA فقط — Stoch يعمل كفلتر اتجاه',
-  stoch:'الزناد = تقاطع Stoch فقط — DMA يعمل كفلتر اتجاه',
-  both: 'كلا المؤشرين لازم يتقاطعان في نفس الوقت',
-};
-
-function setTrigger(mode){
-  triggerMode=mode;
-  document.querySelectorAll('.trig-pill').forEach(p=>p.classList.remove('sel'));
-  const idMap={dma:'trigDMA', stoch:'trigStoch', both:'trigBoth'};
-  const el=document.getElementById(idMap[mode]);
-  if(el) el.classList.add('sel');
-  document.getElementById('trigDesc').textContent=TRIG_DESC[mode];
 }
 
 // ══════════════════════════════════════════════
@@ -1271,46 +1240,16 @@ function finalizeScan(results,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMA
   }
 
   let final=results.filter(s=>{
-    const dmaResult=checkDMA(s);   // true=pass, false=fail, null=inactive
+    const dmaResult=checkDMA(s);
     const stochResult=checkStoch(s);
-
-    if(triggerMode==='dma'){
-      // DMA زناد، Stoch فلتر K>D فقط
-      if(dmaResult!==true) return false;
-      if(stochOn&&stochTFs.length>0){
-        for(const tf of stochTFs){
-          if(!s.stochSigs[tf].isPositive) return false; // K>D
-          if(stochSMAPerTF[tf]&&!s.stochAboveSMAPerTF[tf]) return false;
-        }
-      }
-      return true;
-    }
-
-    if(triggerMode==='stoch'){
-      // Stoch زناد، DMA فلتر DIF>DIFMA فقط
-      if(stochResult!==true) return false;
-      if(dmaOn&&dmaTFs.length>0){
-        for(const tf of dmaTFs){
-          if(!s.dmaSigs[tf].isPositive) return false; // DIF>DIFMA
-          if(s._dmaZeroPerTF[tf]&&s.dmaSigs[tf].curDma<=0) return false;
-          if(dmaSMAPerTF[tf]&&!s.dmaAboveSMAPerTF[tf]) return false;
-        }
-      }
-      return true;
-    }
-
-    // both: كلاهما لازم يتقاطعان
-    // إذا كلاهما inactive → ما يظهر شيء
+    // إذا كلاهما غير مفعّل → لا يظهر
     if(dmaResult===null&&stochResult===null) return false;
-    // إذا واحد فقط active
+    // إذا واحد فقط مفعّل → يجب يمر
     if(dmaResult===null) return stochResult===true;
     if(stochResult===null) return dmaResult===true;
-    // كلاهما active
+    // كلاهما مفعّل → كلاهما يجب يمر
     return dmaResult===true && stochResult===true;
   });
-
-  // Store trigger mode on each result for display
-  final.forEach(s=>{s._triggerMode=triggerMode;});
 
   lastResults=final;
   buildHeader(dmaTFs,stochTFs,dmaOn,stochOn,dmaSMAPerTF,stochSMAPerTF);
@@ -1420,28 +1359,19 @@ function renderTable(data){
       stochCols+=`<td>${smaBadge}<span class="sig ${sigClass}">${sigLabel}</span></td>`;
     });
 
-    // Overall signal — يعكس وضع الزناد بناءً على triggerMode
-    const tMode=s._triggerMode||triggerMode;
+    // Overall signal — يعكس الزناد المفعّل
     const dmaActive=s._dmaOn && s._dmaTFs.length>0;
     const stochActive=s._stochOn && s._stochTFs.length>0;
-    const dmaTrigTF=dmaActive?s._dmaTFs[s._dmaTFs.length-1]:null;
-    const stochTrigTF=stochActive?s._stochTFs[s._stochTFs.length-1]:null;
+    const dmaTrigTF=dmaActive?(getTrigTF('dma')&&s._dmaTFs.includes(getTrigTF('dma'))?getTrigTF('dma'):s._dmaTFs[s._dmaTFs.length-1]):null;
+    const stochTrigTF=stochActive?(getTrigTF('stoch')&&s._stochTFs.includes(getTrigTF('stoch'))?getTrigTF('stoch'):s._stochTFs[s._stochTFs.length-1]):null;
     const dmaCross=dmaTrigTF&&s.dmaSigs[dmaTrigTF]?.isCrossover;
     const stochCross=stochTrigTF&&s.stochSigs[stochTrigTF]?.isCrossover;
 
     let overallSig,overallClass;
-    if(tMode==='dma'){
-      overallSig=dmaCross?'⚡ DMA تقاطع':'✓ DMA إيجابي';
-      overallClass=dmaCross?'sig-trig':'sig-cond';
-    } else if(tMode==='stoch'){
-      overallSig=stochCross?'⚡ Stoch تقاطع':'✓ Stoch إيجابي';
-      overallClass=stochCross?'sig-trig':'sig-cond';
-    } else {
-      // both
-      if(dmaCross&&stochCross){overallSig='🚀 تقاطع مزدوج';overallClass='sig-trig';}
-      else if(dmaCross){overallSig='⚡ DMA تقاطع';overallClass='sig-trig';}
-      else{overallSig='⚡ Stoch تقاطع';overallClass='sig-trig';}
-    }
+    if(dmaCross&&stochCross){overallSig='🚀 تقاطع مزدوج';overallClass='sig-trig';}
+    else if(dmaCross){overallSig='⚡ DMA تقاطع';overallClass='sig-trig';}
+    else if(stochCross){overallSig='⚡ Stoch تقاطع';overallClass='sig-trig';}
+    else{overallSig='✓ إيجابي';overallClass='sig-cond';}
     entryCount++;
 
     const col=getColor(s.score);
@@ -1487,7 +1417,6 @@ function getSnap(){
     dmaTFs,stochTFs,
     dmaSMAPerTF,stochSMAPerTF,
     dmaZeroPerTF,
-    triggerMode,
     crossPerTF:getCrossPerTF(),
     stochK:parseInt(document.getElementById('stochK').value)||5,
     stochD:parseInt(document.getElementById('stochD').value)||3,
@@ -1536,7 +1465,6 @@ function applySnap(snap){
   if(snap.stochK){document.getElementById('stochK').value=snap.stochK;}
   if(snap.stochD){document.getElementById('stochD').value=snap.stochD;}
   if(snap.stochS){document.getElementById('stochS').value=snap.stochS;}
-  if(snap.triggerMode) setTrigger(snap.triggerMode);
   updateStochBadge();updateMTFHint();
 }
 async function saveStrategy(){
