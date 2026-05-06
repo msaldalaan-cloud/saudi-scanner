@@ -878,15 +878,18 @@ function buildCandles(dailyCandles, tf){
 async function fetchStockTF(sym, tf){
   // دائماً نجلب البيانات اليومية ونبني منها الأطر الأخرى
   const nowRiyadh=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-  const toStr=nowRiyadh.toISOString().split('T')[0];
+  // استخدام تاريخ الرياض مباشرة (ليس toISOString الذي يعطي UTC)
+  const ry=nowRiyadh.getFullYear(),rm=String(nowRiyadh.getMonth()+1).padStart(2,'0'),rd=String(nowRiyadh.getDate()).padStart(2,'0');
+  const toStr=`${ry}-${rm}-${rd}`;
   const from=new Date(nowRiyadh);
   // نجلب كافية للإطار المطلوب
   if(tf==='D')   from.setFullYear(from.getFullYear()-2);
   else if(tf==='W') from.setFullYear(from.getFullYear()-7);
   else if(tf==='M') from.setFullYear(from.getFullYear()-25);
+  const fy=from.getFullYear(),fm=String(from.getMonth()+1).padStart(2,'0'),fd=String(from.getDate()).padStart(2,'0');
   const data=await apiFetch(`historical/${sym}`,{
     period:'daily',
-    from:from.toISOString().split('T')[0],
+    from:`${fy}-${fm}-${fd}`,
     to:toStr,
   });
   const rawCandles=data?.data||data?.results||data?.candles||[];
