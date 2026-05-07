@@ -914,7 +914,11 @@ async function fetchStockTF(sym, tf){
   }
   const lty=lastTrading.getFullYear(),ltm=String(lastTrading.getMonth()+1).padStart(2,'0'),ltd=String(lastTrading.getDate()).padStart(2,'0');
   const lastTradingStr=`${lty}-${ltm}-${ltd}`;
-  if(lastDailyDate!==lastTradingStr) return null;
+  if(lastDailyDate!==lastTradingStr){
+    // نسمح بفارق حتى 3 أيام تداول (بعض الأسهم قليلة السيولة)
+    const daysDiff=(new Date(lastTradingStr)-new Date(lastDailyDate))/(1000*60*60*24);
+    if(daysDiff>7) return null;
+  }
 
   // ── إضافة الشمعة الحية لليومية قبل البناء (أثناء السوق فقط) ──
   const workingDaily=[...dailyFiltered];
