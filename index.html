@@ -904,7 +904,7 @@ async function fetchStockTF(sym, tf){
     const lastDailyDate=dailyFiltered[dailyFiltered.length-1]?.date?.split('T')[0];
     const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
     const timeMin=nowR.getHours()*60+nowR.getMinutes();
-    const isMarketOpen=nowR.getDay()>=0&&nowR.getDay()<=4&&timeMin>=595&&timeMin<=935;
+    const isMarketOpen=nowR.getDay()>=0&&nowR.getDay()<=4&&timeMin>=600&&timeMin<=930;
     let lastTrading=new Date(nowR);
     if(!isMarketOpen){
       lastTrading.setDate(lastTrading.getDate()-1);
@@ -929,7 +929,7 @@ async function fetchStockTF(sym, tf){
     const nowRiyadh=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
     const dayOfWeek=nowRiyadh.getDay(); // 0=Sun, 4=Thu
     const timeMin=nowRiyadh.getHours()*60+nowRiyadh.getMinutes();
-    const isMarketOpen=dayOfWeek>=0&&dayOfWeek<=4&&timeMin>=595&&timeMin<=935;
+    const isMarketOpen=dayOfWeek>=0&&dayOfWeek<=4&&timeMin>=600&&timeMin<=930;
 
     const quote=await apiFetch(`quote/${sym}`);
     if(quote?.price && isMarketOpen){
@@ -937,8 +937,10 @@ async function fetchStockTF(sym, tf){
       const liveHigh= parseFloat(quote.high||quote.price);
       const liveLow=  parseFloat(quote.low||quote.price);
       const liveOpen= parseFloat(quote.open||quote.price);
-      const today=new Date();
-      const todayStr=today.toISOString().split('T')[0];
+      // استخدام تاريخ الرياض مباشرة
+      const todayR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
+      const ty=todayR.getFullYear(),tm=String(todayR.getMonth()+1).padStart(2,'0'),td=String(todayR.getDate()).padStart(2,'0');
+      const todayStr=`${ty}-${tm}-${td}`;
 
       if(tf==='D'){
         // اليومي: أضف أو حدّث شمعة اليوم
@@ -948,20 +950,13 @@ async function fetchStockTF(sym, tf){
         else sorted.push(live);
 
       } else if(tf==='W'){
-        // الأسبوعي: ابنِ شمعة الأسبوع الحالي
-        // أول يوم في الأسبوع الحالي (الأحد)
-        const dayOfWeek=today.getDay(); // 0=Sun
-        const weekStart=new Date(today);
-        weekStart.setDate(today.getDate()-dayOfWeek);
-        const weekStartStr=weekStart.toISOString().split('T')[0];
-
+        const dayOfW=todayR.getDay();
+        const weekStart=new Date(todayR);
+        weekStart.setDate(todayR.getDate()-dayOfW);
+        const wsy=weekStart.getFullYear(),wsm=String(weekStart.getMonth()+1).padStart(2,'0'),wsd=String(weekStart.getDate()).padStart(2,'0');
+        const weekStartStr=`${wsy}-${wsm}-${wsd}`;
         const lastDate=(sorted[sorted.length-1]?.date||'').split('T')[0];
-        // جلب شمعات هذا الأسبوع من اليومي لحساب high/low حقيقي
-        const weeklyData=await apiFetch(`historical/${sym}`,{
-          period:'daily',
-          from:weekStartStr,
-          to:todayStr,
-        });
+        const weeklyData=await apiFetch(`historical/${sym}`,{period:'daily',from:weekStartStr,to:todayStr});
         const weekCandles=weeklyData?.data||weeklyData?.results||[];
         let wHigh=liveHigh, wLow=liveLow, wOpen=liveOpen;
         if(weekCandles.length>0){
@@ -974,16 +969,10 @@ async function fetchStockTF(sym, tf){
         else sorted.push(liveWeek);
 
       } else if(tf==='M'){
-        // الشهري: ابنِ شمعة الشهر الحالي
-        const monthStart=new Date(today.getFullYear(),today.getMonth(),1);
-        const monthStartStr=monthStart.toISOString().split('T')[0];
-
+        const msy=todayR.getFullYear(),msm=String(todayR.getMonth()+1).padStart(2,'0');
+        const monthStartStr=`${msy}-${msm}-01`;
         const lastDate=(sorted[sorted.length-1]?.date||'').split('T')[0];
-        const monthlyData=await apiFetch(`historical/${sym}`,{
-          period:'daily',
-          from:monthStartStr,
-          to:todayStr,
-        });
+        const monthlyData=await apiFetch(`historical/${sym}`,{period:'daily',from:monthStartStr,to:todayStr});
         const monthCandles=monthlyData?.data||monthlyData?.results||[];
         let mHigh=liveHigh, mLow=liveLow, mOpen=liveOpen;
         if(monthCandles.length>0){
