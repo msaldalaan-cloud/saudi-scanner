@@ -892,100 +892,52 @@ async function fetchStockTF(sym, tf){
   // استبعاد الجمعة والسبت
   const dailyFiltered=rawCandles.filter(c=>{
     const d=new Date(c.date); return d.getDay()!==5&&d.getDay()!==6;
-  });
-  // بناء الشمعات حسب الإطار
-  const built=buildCandles(dailyFiltered, tf);
-  const candles=built;
-  if(candles.length<60) return null;
-  const sorted=[...candles].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  }).sort((a,b)=>new Date(a.date)-new Date(b.date));
 
-  // ── تحقق إن البيانات اليومية محدّثة (فقط للإطار اليومي) ──
-  if(tf==='D'){
-    const lastDailyDate=dailyFiltered[dailyFiltered.length-1]?.date?.split('T')[0];
-    const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-    const timeMin=nowR.getHours()*60+nowR.getMinutes();
-    const isMarketOpen=nowR.getDay()>=0&&nowR.getDay()<=4&&timeMin>=600&&timeMin<=930;
-    let lastTrading=new Date(nowR);
-    if(!isMarketOpen){
+  if(dailyFiltered.length<60) return null;
+
+  // ── تحقق إن البيانات اليومية محدّثة ──
+  const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
+  const timeMin=nowR.getHours()*60+nowR.getMinutes();
+  const isMarketOpen=nowR.getDay()>=0&&nowR.getDay()<=4&&timeMin>=600&&timeMin<=930;
+  const lastDailyDate=dailyFiltered[dailyFiltered.length-1]?.date?.split('T')[0];
+
+  // حساب آخر يوم تداول
+  let lastTrading=new Date(nowR);
+  if(!isMarketOpen){
+    lastTrading.setDate(lastTrading.getDate()-1);
+    while(lastTrading.getDay()===5||lastTrading.getDay()===6)
       lastTrading.setDate(lastTrading.getDate()-1);
-      while(lastTrading.getDay()===5||lastTrading.getDay()===6){
-        lastTrading.setDate(lastTrading.getDate()-1);
+  } else {
+    while(lastTrading.getDay()===5||lastTrading.getDay()===6)
+      lastTrading.setDate(lastTrading.getDate()-1);
+  }
+  const lty=lastTrading.getFullYear(),ltm=String(lastTrading.getMonth()+1).padStart(2,'0'),ltd=String(lastTrading.getDate()).padStart(2,'0');
+  const lastTradingStr=`${lty}-${ltm}-${ltd}`;
+  if(lastDailyDate!==lastTradingStr) return null;
+
+  // ── إضافة الشمعة الحية لليومية قبل البناء (أثناء السوق فقط) ──
+  const workingDaily=[...dailyFiltered];
+  if(isMarketOpen){
+    try{
+      const quote=await apiFetch(`quote/${sym}`);
+      if(quote?.price){
+        const lp=parseFloat(quote.price),lh=parseFloat(quote.high||quote.price);
+        const ll=parseFloat(quote.low||quote.price),lo=parseFloat(quote.open||quote.price);
+        const ty=nowR.getFullYear(),tm2=String(nowR.getMonth()+1).padStart(2,'0'),td2=String(nowR.getDate()).padStart(2,'0');
+        const todayStr=`${ty}-${tm2}-${td2}`;
+        const last=workingDaily[workingDaily.length-1];
+        const liveCandle={date:todayStr,open:lo,high:lh,low:ll,close:lp,volume:0,adjusted_close:lp};
+        if(last?.date?.split('T')[0]===todayStr) workingDaily[workingDaily.length-1]=liveCandle;
+        else workingDaily.push(liveCandle);
       }
-    } else {
-      while(lastTrading.getDay()===5||lastTrading.getDay()===6){
-        lastTrading.setDate(lastTrading.getDate()-1);
-      }
-    }
-    const y=lastTrading.getFullYear();
-    const mo=String(lastTrading.getMonth()+1).padStart(2,'0');
-    const d=String(lastTrading.getDate()).padStart(2,'0');
-    const lastTradingStr=`${y}-${mo}-${d}`;
-    if(lastDailyDate!==lastTradingStr) return null;
+    }catch(e){}
   }
 
-  // ── شمعة اليوم الحية لكل الإطارات ──
-  // فقط أثناء ساعات السوق (الأحد-الخميس 9:55-15:35 بتوقيت الرياض)
-  try{
-    const nowRiyadh=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-    const dayOfWeek=nowRiyadh.getDay(); // 0=Sun, 4=Thu
-    const timeMin=nowRiyadh.getHours()*60+nowRiyadh.getMinutes();
-    const isMarketOpen=dayOfWeek>=0&&dayOfWeek<=4&&timeMin>=600&&timeMin<=930;
-
-    const quote=await apiFetch(`quote/${sym}`);
-    if(quote?.price && isMarketOpen){
-      const livePrice=parseFloat(quote.price);
-      const liveHigh= parseFloat(quote.high||quote.price);
-      const liveLow=  parseFloat(quote.low||quote.price);
-      const liveOpen= parseFloat(quote.open||quote.price);
-      // استخدام تاريخ الرياض مباشرة
-      const todayR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-      const ty=todayR.getFullYear(),tm=String(todayR.getMonth()+1).padStart(2,'0'),td=String(todayR.getDate()).padStart(2,'0');
-      const todayStr=`${ty}-${tm}-${td}`;
-
-      if(tf==='D'){
-        // اليومي: أضف أو حدّث شمعة اليوم
-        const lastDate=(sorted[sorted.length-1]?.date||'').split('T')[0];
-        const live={date:todayStr,open:liveOpen,high:liveHigh,low:liveLow,close:livePrice};
-        if(lastDate===todayStr) sorted[sorted.length-1]=live;
-        else sorted.push(live);
-
-      } else if(tf==='W'){
-        const dayOfW=todayR.getDay();
-        const weekStart=new Date(todayR);
-        weekStart.setDate(todayR.getDate()-dayOfW);
-        const wsy=weekStart.getFullYear(),wsm=String(weekStart.getMonth()+1).padStart(2,'0'),wsd=String(weekStart.getDate()).padStart(2,'0');
-        const weekStartStr=`${wsy}-${wsm}-${wsd}`;
-        const lastDate=(sorted[sorted.length-1]?.date||'').split('T')[0];
-        const weeklyData=await apiFetch(`historical/${sym}`,{period:'daily',from:weekStartStr,to:todayStr});
-        const weekCandles=weeklyData?.data||weeklyData?.results||[];
-        let wHigh=liveHigh, wLow=liveLow, wOpen=liveOpen;
-        if(weekCandles.length>0){
-          wHigh=Math.max(...weekCandles.map(c=>parseFloat(c.high)), liveHigh);
-          wLow= Math.min(...weekCandles.map(c=>parseFloat(c.low)),  liveLow);
-          wOpen=parseFloat(weekCandles[0].open);
-        }
-        const liveWeek={date:weekStartStr,open:wOpen,high:wHigh,low:wLow,close:livePrice};
-        if(lastDate>=weekStartStr) sorted[sorted.length-1]=liveWeek;
-        else sorted.push(liveWeek);
-
-      } else if(tf==='M'){
-        const msy=todayR.getFullYear(),msm=String(todayR.getMonth()+1).padStart(2,'0');
-        const monthStartStr=`${msy}-${msm}-01`;
-        const lastDate=(sorted[sorted.length-1]?.date||'').split('T')[0];
-        const monthlyData=await apiFetch(`historical/${sym}`,{period:'daily',from:monthStartStr,to:todayStr});
-        const monthCandles=monthlyData?.data||monthlyData?.results||[];
-        let mHigh=liveHigh, mLow=liveLow, mOpen=liveOpen;
-        if(monthCandles.length>0){
-          mHigh=Math.max(...monthCandles.map(c=>parseFloat(c.high)), liveHigh);
-          mLow= Math.min(...monthCandles.map(c=>parseFloat(c.low)),  liveLow);
-          mOpen=parseFloat(monthCandles[0].open);
-        }
-        const liveMonth={date:monthStartStr,open:mOpen,high:mHigh,low:mLow,close:livePrice};
-        if(lastDate>=monthStartStr) sorted[sorted.length-1]=liveMonth;
-        else sorted.push(liveMonth);
-      }
-    }
-  }catch(e){/* تجاهل لو فشل */}
+  // ── بناء الشمعات حسب الإطار من البيانات اليومية (مع الشمعة الحية إن وجدت) ──
+  const built=buildCandles(workingDaily, tf);
+  if(built.length<10) return null;
+  const sorted=[...built].sort((a,b)=>new Date(a.date)-new Date(b.date));
 
   return{
     closes:    sorted.map(c=>parseFloat(c.close)),
@@ -993,7 +945,7 @@ async function fetchStockTF(sym, tf){
     lows:      sorted.map(c=>parseFloat(c.low)),
     lastCandle:sorted[sorted.length-1],
     count:     sorted.length,
-    _rawDaily: dailyFiltered,
+    _rawDaily: workingDaily,
     sorted,
   };
 }
