@@ -6,603 +6,316 @@
 <title>Saudi Scanner Pro</title>
 <style>
 :root{
-  --bg:#07090d;--surface:#0c1016;--surface2:#111820;--surface3:#18222e;
+  --bg:#07090d;--surface:#0d1117;--surface2:#111820;--surface3:#18222e;
   --border:#1c2a38;--border2:#243447;
-  --gold:#d4a843;--gold2:#f0c060;--gold-dim:rgba(212,168,67,0.11);
+  --gold:#d4a843;--gold2:#f0c060;--gold-dim:rgba(212,168,67,0.13);
   --green:#22c55e;--green-dim:rgba(34,197,94,0.1);
   --red:#ef4444;--red-dim:rgba(239,68,68,0.1);
-  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.1);
-  --cyan:#06b6d4;--cyan-dim:rgba(6,182,212,0.1);
-  --purple:#a855f7;--purple-dim:rgba(168,85,247,0.1);
+  --blue:#3b82f6;--cyan:#06b6d4;--cyan-dim:rgba(6,182,212,0.1);
   --orange:#f97316;--orange-dim:rgba(249,115,22,0.1);
+  --purple:#a855f7;--purple-dim:rgba(168,85,247,0.1);
   --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
-  --mono:'Courier New',Courier,monospace;
-  --font:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;direction:rtl}
-body::before{content:'';position:fixed;top:-150px;right:-150px;width:500px;height:500px;background:radial-gradient(circle,rgba(212,168,67,0.05) 0%,transparent 70%);pointer-events:none;z-index:0}
 
 /* ─── HEADER ─── */
-header{position:sticky;top:0;z-index:100;background:rgba(7,9,13,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header{position:sticky;top:0;z-index:100;background:rgba(7,9,13,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--gold),#b8860b);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 18px rgba(212,168,67,0.22)}
-.logo-text{font-size:17px;font-weight:700;background:linear-gradient(90deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--gold),#b8860b);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.logo-text{font-size:15px;font-weight:800;background:linear-gradient(90deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .logo-sub{font-size:10px;color:var(--text3);margin-top:1px}
-.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.live-badge{display:flex;align-items:center;gap:5px;background:var(--green-dim);border:1px solid rgba(34,197,94,0.2);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--green);font-weight:600}
-.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .2s;white-space:nowrap}
+.header-actions{display:flex;align-items:center;gap:8px}
+.live-badge{display:flex;align-items:center;gap:5px;background:var(--green-dim);border:1px solid rgba(34,197,94,.2);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--green);font-weight:600}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:700;border:none;cursor:pointer;transition:.2s;white-space:nowrap}
 .btn-gold{background:linear-gradient(135deg,var(--gold),#b8860b);color:#000}
-.btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(212,168,67,.35)}
+.btn-gold:hover{opacity:.88;transform:translateY(-1px)}
 .btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}
 .btn-outline:hover{border-color:var(--gold);color:var(--gold)}
-.btn-blue{background:var(--blue-dim);border:1px solid rgba(59,130,246,.3);color:#93c5fd}
-.btn-blue:hover{background:rgba(59,130,246,.2)}
-.btn-sm{padding:5px 11px;font-size:12px}
+.scan-time{font-size:11px;color:var(--text3)}
 
 /* ─── LAYOUT ─── */
-.container{max-width:1440px;margin:0 auto;padding:20px;position:relative;z-index:1}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 22px;margin-bottom:16px}
-.panel-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.container{max-width:1440px;margin:0 auto;padding:16px 20px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:14px}
+.panel-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .panel-title::after{content:'';flex:1;height:1px;background:var(--border)}
 
-/* ─── INDICATORS GRID ─── */
-.indicators-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:760px){.indicators-grid{grid-template-columns:1fr}}
+/* ─── IND CARDS ─── */
+.ind-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.ind-grid{grid-template-columns:1fr}}
+.ind-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.ind-card.disabled{opacity:.45;pointer-events:none}
+.ind-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ind-label{display:flex;align-items:center;gap:8px}
+.ind-name{font-size:15px;font-weight:800;color:var(--gold2)}
+.ind-badge{font-size:11px;color:var(--text3);background:var(--surface3);border:1px solid var(--border2);border-radius:5px;padding:2px 7px;cursor:pointer}
+.ind-badge:hover{border-color:var(--gold);color:var(--gold)}
 
-/* ─── INDICATOR CARD ─── */
-.ind-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;transition:border-color .2s,box-shadow .2s;position:relative}
-.ind-card.active{border-color:rgba(212,168,67,.35);box-shadow:0 0 22px rgba(212,168,67,.06)}
-.ind-card.disabled{opacity:.35;pointer-events:none}
-.ind-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.ind-name{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
-.ind-badge{font-family:var(--mono);font-size:11px;color:var(--gold);background:var(--gold-dim);padding:2px 8px;border-radius:4px;border:1px solid rgba(212,168,67,.2);cursor:pointer;transition:all .15s}
-.ind-badge:hover{background:rgba(212,168,67,.2)}
-.sec-label{font-size:11px;color:var(--text3);font-weight:600;margin-bottom:6px}
+/* ─── TOGGLE ─── */
+.toggle{position:relative;display:inline-flex;align-items:center;cursor:pointer;width:38px;height:21px}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.t-track{position:absolute;inset:0;background:#1e2d3d;border-radius:21px;transition:.2s}
+.toggle input:checked~.t-track{background:var(--gold)}
+.t-thumb{position:absolute;left:3px;top:3px;width:15px;height:15px;background:#fff;border-radius:50%;transition:.2s;z-index:1}
+.toggle input:checked~.t-thumb{left:20px}
 
-/* Toggle */
-.toggle{position:relative;width:42px;height:23px;cursor:pointer;flex-shrink:0}
-.toggle input{display:none}
-.toggle-track{position:absolute;inset:0;background:var(--border2);border-radius:12px;transition:background .25s}
-.toggle input:checked~.toggle-track{background:linear-gradient(90deg,var(--gold),var(--gold2))}
-.toggle-thumb{position:absolute;top:3px;right:3px;width:17px;height:17px;background:#fff;border-radius:50%;transition:transform .25s;box-shadow:0 1px 4px rgba(0,0,0,.5)}
-.toggle input:checked~.toggle-thumb{transform:translateX(-19px)}
+/* ─── TF ROWS ─── */
+.tf-rows{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+.tf-row{display:flex;align-items:center;gap:8px;min-height:32px}
+.tf-chip{padding:5px 13px;border-radius:7px;font-size:12px;font-weight:700;border:1px solid var(--border2);background:var(--surface3);color:var(--text3);cursor:pointer;transition:.15s;min-width:66px;text-align:center;position:relative}
+.tf-chip .ck{display:none;position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--gold)}
+.tf-chip.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold2)}
+.tf-chip.on .ck{display:block}
+.tf-extras{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tf-extras.hidden{display:none}
 
-/* TF chips */
-.tf-grid{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.tf-chip{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;transition:all .15s;font-family:var(--font);user-select:none;position:relative}
-.tf-chip:hover{border-color:var(--gold);color:var(--gold)}
-.tf-chip.sel{background:var(--gold-dim);border-color:var(--gold);color:var(--gold2)}
-.tf-chip .ck{position:absolute;top:-5px;right:-5px;width:14px;height:14px;background:var(--gold2);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:900}
-.tf-chip.sel .ck{display:flex}
+/* ─── EXTRA BTNS ─── */
+.ex-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid transparent;cursor:pointer;transition:.15s;white-space:nowrap;background:var(--surface3)}
+.ex-btn.sma50{color:var(--cyan);border-color:rgba(6,182,212,.2)}
+.ex-btn.sma50.on{background:var(--cyan-dim);border-color:var(--cyan)}
+.ex-btn.zero{color:var(--orange);border-color:rgba(249,115,22,.2)}
+.ex-btn.zero.on{background:var(--orange-dim);border-color:var(--orange)}
+.ex-btn.cross{color:var(--purple);border-color:rgba(168,85,247,.2)}
+.ex-btn.cross.on{background:var(--purple-dim);border-color:var(--purple)}
+.ex-btn.trig{color:var(--gold2);border-color:rgba(212,168,67,.2)}
+.ex-btn.trig.on{background:var(--gold-dim);border-color:var(--gold)}
+.num-input{width:36px;padding:2px 4px;border-radius:4px;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:11px;text-align:center;font-family:var(--font)}
 
-/* ── MTF Logic Explainer ── */
-.mtf-hint{background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:11px;color:#93c5fd;line-height:1.7;display:flex;gap:8px;align-items:flex-start}
-.mtf-hint-icon{font-size:14px;flex-shrink:0;margin-top:1px}
-.mtf-step{display:inline-flex;align-items:center;gap:3px;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:3px;margin:0 2px}
-.mtf-cond{background:rgba(100,116,139,0.15);color:var(--text3)}
-.mtf-trig{background:var(--green-dim);color:var(--green)}
+/* ─── STOCH PARAMS ─── */
+.stoch-params-box{display:none;margin-bottom:10px;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 10px;background:var(--surface3);border-radius:7px;border:1px solid var(--border)}
+.stoch-params-box.open{display:flex}
+.param-label{font-size:11px;color:var(--text3)}
+.param-input{width:44px;padding:3px 5px;border-radius:5px;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:12px;text-align:center;font-family:var(--font)}
 
-/* ── TRIGGER SELECTOR ── */
-.trigger-bar{background:var(--surface3);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.trigger-label{font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap}
-.trigger-pills{display:flex;gap:6px;flex-shrink:0}
-.trig-pill{padding:6px 16px;border-radius:7px;font-size:12px;font-weight:700;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;transition:all .18s;font-family:var(--font);white-space:nowrap}
-.trig-pill:hover{border-color:var(--gold);color:var(--gold)}
-.trig-pill.sel{background:linear-gradient(135deg,rgba(212,168,67,.2),rgba(212,168,67,.1));border-color:var(--gold);color:var(--gold2);box-shadow:0 0 12px rgba(212,168,67,.15)}
-.trigger-desc{font-size:11px;color:var(--text3);font-style:italic;flex:1}
+/* ─── RESULTS ─── */
+.results-meta{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.res-count{font-size:20px;font-weight:800;color:var(--gold2)}
+.res-label{font-size:13px;color:var(--text3)}
+.sort-row{display:flex;gap:6px;margin-right:auto}
+.sort-btn{padding:4px 11px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid var(--border2);background:var(--surface2);color:var(--text3);cursor:pointer;transition:.15s}
+.sort-btn.on{border-color:var(--gold);color:var(--gold2);background:var(--gold-dim)}
 
-.cross-num-sm{width:42px;background:var(--surface);border:1px solid rgba(249,115,22,.3);border-radius:5px;padding:3px 6px;color:var(--orange);font-family:var(--mono);font-size:12px;font-weight:700;text-align:center;outline:none}
-.cross-num-sm:disabled{opacity:.4}
-.cross-num-sm::-webkit-inner-spin-button,.cross-num-sm::-webkit-outer-spin-button{opacity:0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:right;padding:8px 10px;color:var(--text3);font-size:11px;font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid rgba(28,42,56,.4);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,.015)}
+.sym-cell{font-weight:800;color:var(--gold2)}
+.name-cell{color:var(--text2);font-size:12px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sect-tag{font-size:10px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--text3)}
+.up{color:var(--green)}.dn{color:var(--red)}.neu{color:var(--text2)}
+.sig{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;white-space:nowrap}
+.sig-trig{background:rgba(34,197,94,.14);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.sig-pos{background:rgba(212,168,67,.1);color:var(--gold2);border:1px solid rgba(212,168,67,.2)}
+.score-wrap{display:flex;align-items:center;gap:6px}
+.bar-bg{width:48px;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.bar-fill{height:5px;border-radius:3px}
 
-/* ── PER-TF SMA ROWS ── */
-.tf-rows{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
-.tf-row-item{display:flex;align-items:center;gap:10px}
-.tf-row-item .tf-chip{min-width:76px;margin:0}
-.tf-sma-inline{display:flex;align-items:center;gap:7px;background:var(--surface3);border:1px solid var(--border);border-radius:7px;padding:4px 10px;transition:opacity .2s,border-color .2s}
-.tf-sma-inline.tf-sma-inactive{opacity:.35;pointer-events:none}
-.sma-tag-inline{font-family:var(--mono);font-size:10px;color:var(--cyan);background:var(--cyan-dim);padding:1px 6px;border-radius:3px;border:1px solid rgba(6,182,212,.2);white-space:nowrap}
-.toggle-sm{width:34px;height:19px}
-.toggle-sm .toggle-thumb{width:13px;height:13px;top:3px;right:3px}
-.toggle-sm input:checked~.toggle-thumb{transform:translateX(-15px)}
+/* ─── LOADING ─── */
+.overlay{position:fixed;inset:0;background:rgba(7,9,13,.9);backdrop-filter:blur(10px);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.overlay.show{display:flex}
+.ov-title{font-size:18px;font-weight:700;color:var(--gold2)}
+.prog-track{width:280px;height:6px;background:var(--surface3);border-radius:4px;overflow:hidden}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:0%;transition:.3s;border-radius:4px}
+.ov-sub{font-size:13px;color:var(--text3)}
 
-/* SMA row */
-.sma-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-top:8px}
-.sma-label{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:7px}
-.sma-tag{font-family:var(--mono);font-size:10px;color:var(--cyan);background:var(--cyan-dim);padding:1px 6px;border-radius:3px;border:1px solid rgba(6,182,212,.2)}
-
-/* ── STOCH PARAMS ── */
-.stoch-params{background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:8px}
-.params-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
-.params-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.param-group{display:flex;flex-direction:column;gap:4px}
-.param-label{font-size:10px;color:var(--text3);font-weight:600}
-.param-input{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:5px 8px;color:var(--gold2);font-family:var(--mono);font-size:13px;font-weight:700;text-align:center;outline:none;width:100%;transition:border-color .2s}
-.param-input:focus{border-color:var(--gold)}
-.param-input::-webkit-inner-spin-button,.param-input::-webkit-outer-spin-button{opacity:0}
-
-/* ── CROSSOVER THRESHOLD ── */
-.cross-row{display:flex;align-items:center;justify-content:space-between;background:var(--orange-dim);border:1px solid rgba(249,115,22,.2);border-radius:8px;padding:8px 12px;margin-top:8px}
-.cross-label{font-size:12px;color:#fed7aa;display:flex;align-items:center;gap:7px;flex:1}
-.cross-label small{font-size:10px;color:var(--orange);display:block;margin-top:1px}
-.cross-input-wrap{display:flex;align-items:center;gap:6px}
-.cross-num{width:52px;background:var(--surface3);border:1px solid rgba(249,115,22,.3);border-radius:6px;padding:5px 8px;color:var(--orange);font-family:var(--mono);font-size:14px;font-weight:700;text-align:center;outline:none;transition:border-color .2s}
-.cross-num:focus{border-color:var(--orange)}
-.cross-num::-webkit-inner-spin-button,.cross-num::-webkit-outer-spin-button{opacity:0}
-.cross-slider{-webkit-appearance:none;appearance:none;width:80px;height:4px;border-radius:2px;background:var(--border2);outline:none;cursor:pointer}
-.cross-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--orange);cursor:pointer;box-shadow:0 0 6px rgba(249,115,22,.5)}
-
-/* ── RESULTS ── */
-.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px}
-.results-meta{display:flex;align-items:baseline;gap:8px}
-.count-num{font-size:28px;font-weight:700;font-family:var(--mono);color:var(--gold2)}
-.count-lbl{font-size:13px;color:var(--text3)}
-.sort-bar{display:flex;gap:5px}
-.sort-btn{padding:4px 11px;border-radius:5px;font-size:11px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;transition:all .15s;font-family:var(--font);font-weight:600}
-.sort-btn.sel{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
-
-/* ── TABLE ── */
-.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
-.table-scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse}
-thead th{background:var(--surface2);padding:10px 13px;font-size:10px;font-weight:700;color:var(--text3);text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;letter-spacing:.5px;text-transform:uppercase}
-tbody tr{border-bottom:1px solid rgba(28,42,56,.5);transition:background .12s}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:rgba(255,255,255,.022)}
-td{padding:10px 13px;font-size:13px;white-space:nowrap}
-.sym{font-family:var(--mono);font-weight:700;font-size:14px}
-.co{color:var(--text2);font-size:12px;max-width:140px;overflow:hidden;text-overflow:ellipsis}
-.sect-tag{font-size:10px;color:var(--text3);background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:2px 7px;display:inline-block}
-.price{font-family:var(--mono);font-weight:700;font-size:14px}
-.chg-cell{font-family:var(--mono);font-size:13px;font-weight:700}
-.up{color:var(--green)}.dn{color:var(--red)}
-
-/* Signal badges */
-.sig{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
-.sig-trig{background:linear-gradient(90deg,rgba(34,197,94,0.2),rgba(34,197,94,0.1));color:#4ade80;border:1px solid rgba(34,197,94,.35);box-shadow:0 0 8px rgba(34,197,94,.15)}
-.sig-cond{background:rgba(212,168,67,0.1);color:var(--gold2);border:1px solid rgba(212,168,67,.2)}
-.sig-bear{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.sig-neu{background:rgba(100,116,139,.12);color:var(--text3);border:1px solid var(--border)}
-.sig-cross{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(249,115,22,.3)}
-.sig-wait{background:rgba(168,85,247,0.1);color:#c4b5fd;border:1px solid rgba(168,85,247,.2)}
-
-/* MTF role label */
-.role-badge{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;font-family:var(--mono);margin-left:4px;vertical-align:middle}
-.role-trig{background:var(--green-dim);color:var(--green)}
-.role-cond{background:var(--gold-dim);color:var(--gold)}
-
-.sma-y{color:var(--green);font-family:var(--mono);font-size:11px;font-weight:700}
-.sma-n{color:var(--red);font-family:var(--mono);font-size:11px;font-weight:700}
-.score-wrap{display:flex;align-items:center;gap:7px}
-.bar-bg{width:52px;height:5px;background:var(--border2);border-radius:3px;overflow:hidden}
-.bar-fill{height:100%;border-radius:3px;transition:width .5s}
-.score-num{font-family:var(--mono);font-size:12px;font-weight:700;min-width:26px;text-align:center}
-
-.status-bar{display:flex;align-items:center;gap:16px;padding:8px 14px;background:var(--surface2);border-top:1px solid var(--border);font-size:11px;color:var(--text3);flex-wrap:wrap}
-.stat{display:flex;align-items:center;gap:5px}
-.stat-dot{width:6px;height:6px;border-radius:50%}
-
-/* ── STRATEGY SECTION ── */
-.strat-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-top:16px}
-.save-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
-.strat-input{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:8px 14px;color:var(--text);font-family:var(--font);font-size:13px;width:220px;outline:none;transition:border-color .2s}
-.strat-input:focus{border-color:var(--gold)}
-.strat-input::placeholder{color:var(--text3)}
-.strat-list{display:flex;flex-wrap:wrap;gap:8px}
-.strat-item{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;padding:8px 12px}
-.strat-name{font-size:13px;font-weight:700;color:var(--text)}
-.strat-meta{font-size:10px;color:var(--text3);margin-top:2px;font-family:var(--mono)}
-.strat-load-btn{background:var(--cyan-dim);border:1px solid rgba(6,182,212,.3);color:var(--cyan);border-radius:5px;padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s}
-.strat-load-btn:hover{background:rgba(6,182,212,.2)}
-.strat-del-btn{background:none;border:1px solid rgba(239,68,68,.2);color:var(--text3);border-radius:5px;padding:3px 8px;font-size:12px;cursor:pointer;transition:all .15s}
-.strat-del-btn:hover{color:var(--red);border-color:rgba(239,68,68,.4)}
-.no-strat{font-size:12px;color:var(--text3);padding:4px 0}
-
-/* ── EMAIL MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
-.modal-overlay.show{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:26px;width:100%;max-width:500px;box-shadow:0 24px 60px rgba(0,0,0,.6);position:relative;max-height:90vh;overflow-y:auto}
-.modal-title{font-size:17px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:8px}
-.modal-sub{font-size:12px;color:var(--text3);margin-bottom:18px}
-.form-group{margin-bottom:13px}
-.form-label{font-size:12px;color:var(--text2);font-weight:600;margin-bottom:5px;display:block}
-.form-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 14px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color .2s}
-.form-input:focus{border-color:var(--gold)}
-.form-input::placeholder{color:var(--text3)}
-.form-select{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 14px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;cursor:pointer}
-.sched-pills{display:flex;gap:6px;flex-wrap:wrap}
-.sched-pill{padding:5px 13px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;transition:all .15s;font-family:var(--font)}
-.sched-pill.sel{background:var(--purple-dim);border-color:var(--purple);color:#d8b4fe}
-.modal-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
-.modal-close{position:absolute;top:14px;left:14px;background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1;transition:color .15s}
-.modal-close:hover{color:var(--text)}
-.ejs-note{background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--text3);line-height:1.7;margin-top:8px}
-.ejs-note code{color:var(--cyan);font-family:var(--mono);font-size:10px;background:rgba(6,182,212,.08);padding:1px 4px;border-radius:3px}
-
-.strat-email-input{width:200px}
-.ejs-cfg-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px;margin-top:4px}
-.ejs-val{font-family:var(--mono);font-size:10px;color:var(--cyan);background:var(--cyan-dim);padding:1px 6px;border-radius:3px}
-.btn-ejs-cfg{background:none;border:1px solid var(--border2);border-radius:5px;color:var(--text3);font-size:11px;padding:2px 9px;cursor:pointer;font-family:var(--font);transition:all .15s}
-.btn-ejs-cfg:hover{border-color:var(--gold);color:var(--gold)}
-.ejs-cfg-form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;padding:10px;background:var(--surface3);border-radius:8px;border:1px solid var(--border)}
-/* email status badge on strategy card */
-.strat-email-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-family:var(--mono);color:var(--cyan);background:var(--cyan-dim);padding:1px 6px;border-radius:3px;margin-top:3px}
-.strat-alert-status{font-size:10px;color:var(--green);font-weight:700;margin-right:6px}
-.loading-overlay{display:none;position:fixed;inset:0;background:rgba(7,9,13,.8);backdrop-filter:blur(5px);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:14px}
-.loading-overlay.show{display:flex}
-.spinner{width:44px;height:44px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{color:var(--gold2);font-weight:600;font-size:14px}
-.progress-wrap{width:220px;height:3px;background:var(--border2);border-radius:2px;overflow:hidden}
-.progress-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;width:0%;transition:width .25s}
-.loading-count{font-family:var(--mono);font-size:11px;color:var(--text3)}
-
-/* empty */
-.empty{text-align:center;padding:52px 20px;color:var(--text3)}
-.empty-icon{font-size:44px;opacity:.3;margin-bottom:10px}
-.empty-t{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:5px}
-.empty-s{font-size:12px}
-
-/* toast */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px 22px;font-size:13px;font-weight:600;color:var(--text);box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:500;transition:transform .3s;white-space:nowrap}
-.toast.show{transform:translateX(-50%) translateY(0)}
-.toast.success{border-color:rgba(34,197,94,.3);color:var(--green)}
-.toast.error{border-color:rgba(239,68,68,.3);color:var(--red)}
-.toast.info{border-color:rgba(59,130,246,.3);color:#93c5fd}
-
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--surface)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+/* ─── STRATEGIES ─── */
+.strat-form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.strat-input{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);padding:7px 12px;font-size:13px;font-family:var(--font);flex:1;min-width:140px}
+.strat-list{display:flex;flex-direction:column;gap:8px}
+.strat-item{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;flex-wrap:wrap}
+.strat-name{font-weight:700;font-size:13px;color:var(--gold2);flex:1;min-width:100px}
+.strat-meta{font-size:11px;color:var(--text3)}
+.strat-active-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.mini-btn{padding:5px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--surface3);color:var(--text2);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);transition:.15s}
+.mini-btn:hover{border-color:var(--gold);color:var(--gold)}
+.mini-btn.del{border-color:rgba(239,68,68,.3);color:var(--red)}
+.mini-btn.del:hover{background:var(--red-dim)}
+.no-strat{font-size:13px;color:var(--text3);padding:10px 0}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:10px 18px;font-size:13px;z-index:300;opacity:0;transition:.3s;pointer-events:none;color:var(--text)}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
 
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-  <div class="loading-text">جاري فحص كامل السوق...</div>
-  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
-  <div class="loading-count" id="loadingCount">0 / 0</div>
+<div class="overlay" id="overlay">
+  <div class="ov-title">🔍 جارٍ فحص السوق...</div>
+  <div class="prog-track"><div class="prog-bar" id="progBar"></div></div>
+  <div class="ov-sub" id="progCount">0 / 0</div>
 </div>
-
 <div class="toast" id="toast"></div>
 
-<!-- Header -->
 <header>
   <div class="logo">
     <div class="logo-icon">📡</div>
     <div>
       <div class="logo-text">Saudi Scanner Pro</div>
-      <div class="logo-sub">كامل السوق · <span id="totalCnt" style="color:var(--gold)">—</span> سهم</div>
+      <div class="logo-sub">كامل السوق · <span id="totalCnt">—</span> سهم</div>
     </div>
   </div>
-  <div class="header-right">
+  <div class="header-actions">
     <div class="live-badge"><div class="live-dot"></div>تداول</div>
-    <button class="btn btn-gold" onclick="runScan()">🔍 فحص السوق</button>
+    <span class="scan-time" id="scanTime"></span>
+    <button class="btn btn-outline" onclick="runScan()">🔍 فحص يدوي</button>
+    <button class="btn btn-gold" onclick="saveStrategy()">💾 حفظ استراتيجية</button>
   </div>
 </header>
 
 <div class="container">
 
-  <!-- Indicators Panel -->
-  <div class="panel">
-    <div class="panel-title">إعدادات المؤشرات</div>
+<!-- ── INDICATORS PANEL ── -->
+<div class="panel">
+  <div class="panel-title">إعدادات المؤشرات</div>
+  <div class="ind-grid">
 
-    <div class="indicators-grid">
-
-      <!-- DMA Card -->
-      <div class="ind-card active" id="dmaCard">
-        <div class="ind-header">
-          <div class="ind-name">
-            DMA
-            <span class="ind-badge">10 · 50 · 10</span>
-          </div>
-          <label class="toggle">
-            <input type="checkbox" id="dmaOn" checked onchange="syncCard('dma');updateMTFHint()">
-            <div class="toggle-track"></div><div class="toggle-thumb"></div>
-          </label>
+    <!-- ══ DMA CARD ══ -->
+    <div class="ind-card" id="dmaCard">
+      <div class="ind-header">
+        <div class="ind-label">
+          <span class="ind-name">DMA</span>
+          <span class="ind-badge">10 · 50 · 10</span>
         </div>
-
-        <!-- MTF hint -->
-        <div class="mtf-hint" id="dmaMtfHint">
-          <div class="mtf-hint-icon">ℹ️</div>
-          <div id="dmaMtfText">اختر الإطارات لمعرفة منطق الدخول</div>
-        </div>
-
-        <div class="sec-label">الإطارات الزمنية — الزناد: تقاطع DIF فوق DIFMA — الشرط: DIF فوق DIFMA</div>
-        <div class="tf-rows" id="dmaTFRows">
-
-          <!-- شهري -->
-          <div class="tf-row-item" id="dma-row-M">
-            <button class="tf-chip" data-ind="dma" data-tf="M" onclick="toggleTF(this);updateMTFHint()"><div class="ck">✓</div>شهري</button>
-            <div class="tf-sma-inline tf-sma-inactive" id="dma-sma-M">
-              <span class="sma-tag-inline">SMA 50</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="dmaSMA_M">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="tf-sma-inline tf-sma-inactive" id="dma-zero-M">
-              <span class="sma-tag-inline" style="color:var(--orange);background:var(--orange-dim);border-color:rgba(249,115,22,.2)">DIF > 0</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="dmaZero_M">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="tf-sma-inline tf-sma-inactive" id="dma-trig-M">
-              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="dmaTrig_M" onchange="syncTrigTF('dma','M')">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-          </div>
-
-          <!-- أسبوعي -->
-          <div class="tf-row-item" id="dma-row-W">
-            <button class="tf-chip sel" data-ind="dma" data-tf="W" onclick="toggleTF(this);updateMTFHint()"><div class="ck">✓</div>أسبوعي</button>
-            <div class="tf-sma-inline" id="dma-sma-W">
-              <span class="sma-tag-inline">SMA 50</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="dmaSMA_W">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="tf-sma-inline" id="dma-zero-W">
-              <span class="sma-tag-inline" style="color:var(--orange);background:var(--orange-dim);border-color:rgba(249,115,22,.2)">DIF > 0</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="dmaZero_W">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="tf-sma-inline" id="dma-trig-W">
-              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="dmaTrig_W" onchange="syncTrigTF('dma','W')">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-          </div>
-
-          <!-- يومي -->
-          <div class="tf-row-item" id="dma-row-D">
-            <button class="tf-chip" data-ind="dma" data-tf="D" onclick="toggleTF(this);updateMTFHint()"><div class="ck">✓</div>يومي</button>
-            <div class="tf-sma-inline tf-sma-inactive" id="dma-sma-D">
-              <span class="sma-tag-inline">SMA 50</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="dmaSMA_D">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="tf-sma-inline tf-sma-inactive" id="dma-zero-D">
-              <span class="sma-tag-inline" style="color:var(--orange);background:var(--orange-dim);border-color:rgba(249,115,22,.2)">DIF > 0</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="dmaZero_D">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="tf-sma-inline tf-sma-inactive" id="dma-trig-D">
-              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="dmaTrig_D" onchange="syncTrigTF('dma','D')">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-          </div>
-
-        </div>
+        <label class="toggle"><input type="checkbox" id="dmaOn" checked onchange="syncCard('dma')"><div class="t-track"></div><div class="t-thumb"></div></label>
       </div>
+      <div class="tf-rows">
 
-      <!-- Stoch Card -->
-      <div class="ind-card active" id="stochCard">
-        <div class="ind-header">
-          <div class="ind-name">
-            Stochastic
-            <span class="ind-badge" id="stochBadge" title="انقر لتعديل الإعدادات" onclick="toggleStochParams()">5 · 3 · 3</span>
+        <!-- شهري -->
+        <div class="tf-row">
+          <button class="tf-chip" id="dma-M" onclick="toggleTF('dma','M')"><div class="ck">✓</div>شهري</button>
+          <div class="tf-extras hidden" id="dma-M-ex">
+            <button class="ex-btn sma50" id="dma-M-sma" onclick="toggleEx(this)">SMA 50</button>
+            <button class="ex-btn zero" id="dma-M-zero" onclick="toggleEx(this)">DIF > 0</button>
           </div>
-          <label class="toggle">
-            <input type="checkbox" id="stochOn" checked onchange="syncCard('stoch');updateMTFHint()">
-            <div class="toggle-track"></div><div class="toggle-thumb"></div>
-          </label>
         </div>
 
-        <!-- MTF hint -->
-        <div class="mtf-hint" id="stochMtfHint">
-          <div class="mtf-hint-icon">ℹ️</div>
-          <div id="stochMtfText">اختر الإطارات لمعرفة منطق الدخول</div>
+        <!-- أسبوعي -->
+        <div class="tf-row">
+          <button class="tf-chip" id="dma-W" onclick="toggleTF('dma','W')"><div class="ck">✓</div>أسبوعي</button>
+          <div class="tf-extras hidden" id="dma-W-ex">
+            <button class="ex-btn sma50" id="dma-W-sma" onclick="toggleEx(this)">SMA 50</button>
+            <button class="ex-btn zero" id="dma-W-zero" onclick="toggleEx(this)">DIF > 0</button>
+          </div>
         </div>
 
-        <div class="sec-label">الإطارات الزمنية (متعدد)</div>
-        <div class="tf-rows" id="stochTFRows">
-
-          <!-- شهري -->
-          <div class="tf-row-item" id="stoch-row-M">
-            <button class="tf-chip" data-ind="stoch" data-tf="M" onclick="toggleTF(this);updateMTFHint()"><div class="ck">✓</div>شهري</button>
-            <div class="tf-sma-inline tf-sma-inactive" id="stoch-sma-M">
-              <span class="sma-tag-inline">SMA 50</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="stochSMA_M">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="tf-sma-inline tf-sma-inactive" id="stoch-cross-M">
-              <input type="number" class="cross-num-sm" id="crossVal_M" value="30" min="1" max="99" disabled>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="crossEnabled_M" onchange="syncCrossTF('M')">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="tf-sma-inline tf-sma-inactive" id="stoch-trig-M">
-              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="stochTrig_M" onchange="syncTrigTF('stoch','M')">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-          </div>
-
-          <!-- أسبوعي -->
-          <div class="tf-row-item" id="stoch-row-W">
-            <button class="tf-chip sel" data-ind="stoch" data-tf="W" onclick="toggleTF(this);updateMTFHint()"><div class="ck">✓</div>أسبوعي</button>
-            <div class="tf-sma-inline" id="stoch-sma-W">
-              <span class="sma-tag-inline">SMA 50</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="stochSMA_W">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="tf-sma-inline" id="stoch-cross-W">
-              <input type="number" class="cross-num-sm" id="crossVal_W" value="30" min="1" max="99" disabled>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="crossEnabled_W" onchange="syncCrossTF('W')">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="tf-sma-inline" id="stoch-trig-W">
-              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="stochTrig_W" onchange="syncTrigTF('stoch','W')">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-          </div>
-
-          <!-- يومي -->
-          <div class="tf-row-item" id="stoch-row-D">
-            <button class="tf-chip sel" data-ind="stoch" data-tf="D" onclick="toggleTF(this);updateMTFHint()"><div class="ck">✓</div>يومي</button>
-            <div class="tf-sma-inline" id="stoch-sma-D">
-              <span class="sma-tag-inline">SMA 50</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="stochSMA_D">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="tf-sma-inline" id="stoch-cross-D">
-              <input type="number" class="cross-num-sm" id="crossVal_D" value="30" min="1" max="99" disabled>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="crossEnabled_D" onchange="syncCrossTF('D')">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="tf-sma-inline" id="stoch-trig-D">
-              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
-              <label class="toggle toggle-sm">
-                <input type="checkbox" id="stochTrig_D" onchange="syncTrigTF('stoch','D')">
-                <div class="toggle-track"></div><div class="toggle-thumb"></div>
-              </label>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Stoch configurable params -->
-        <div class="stoch-params" id="stochParamsBox" style="display:none">
-          <div class="params-title">إعدادات Stochastic</div>
-          <div class="params-row">
-            <div class="param-group">
-              <div class="param-label">K Period</div>
-              <input type="number" class="param-input" id="stochK" value="5" min="1" max="50" oninput="updateStochBadge()">
-            </div>
-            <div class="param-group">
-              <div class="param-label">D Period</div>
-              <input type="number" class="param-input" id="stochD" value="3" min="1" max="20" oninput="updateStochBadge()">
-            </div>
-            <div class="param-group">
-              <div class="param-label">Slowing</div>
-              <input type="number" class="param-input" id="stochS" value="3" min="1" max="20" oninput="updateStochBadge()">
-            </div>
+        <!-- يومي -->
+        <div class="tf-row">
+          <button class="tf-chip" id="dma-D" onclick="toggleTF('dma','D')"><div class="ck">✓</div>يومي</button>
+          <div class="tf-extras hidden" id="dma-D-ex">
+            <button class="ex-btn sma50" id="dma-D-sma" onclick="toggleEx(this)">SMA 50</button>
+            <button class="ex-btn zero" id="dma-D-zero" onclick="toggleEx(this)">DIF > 0</button>
+            <button class="ex-btn trig" id="dma-D-trig" onclick="toggleEx(this)">⚡ زناد</button>
           </div>
         </div>
 
       </div>
-
     </div>
-  </div>
 
-  <!-- Results -->
-  <div class="results-header">
-    <div class="results-meta">
-      <div class="count-num" id="countNum">—</div>
-      <div class="count-lbl">سهم مطابق</div>
+    <!-- ══ STOCH CARD ══ -->
+    <div class="ind-card" id="stochCard">
+      <div class="ind-header">
+        <div class="ind-label">
+          <span class="ind-name">Stochastic</span>
+          <span class="ind-badge" id="stochBadge" onclick="toggleStochEdit()">5 · 3 · 3</span>
+        </div>
+        <label class="toggle"><input type="checkbox" id="stochOn" checked onchange="syncCard('stoch')"><div class="t-track"></div><div class="t-thumb"></div></label>
+      </div>
+
+      <!-- Stoch params edit -->
+      <div class="stoch-params-box" id="stochParamsBox">
+        <span class="param-label">K</span>
+        <input class="param-input" type="number" id="stochK" value="5" min="1" max="50" oninput="updateStochBadge()">
+        <span class="param-label">D</span>
+        <input class="param-input" type="number" id="stochD" value="3" min="1" max="20" oninput="updateStochBadge()">
+        <span class="param-label">Smooth</span>
+        <input class="param-input" type="number" id="stochS" value="3" min="1" max="20" oninput="updateStochBadge()">
+      </div>
+
+      <div class="tf-rows">
+
+        <!-- شهري -->
+        <div class="tf-row">
+          <button class="tf-chip" id="stoch-M" onclick="toggleTF('stoch','M')"><div class="ck">✓</div>شهري</button>
+          <div class="tf-extras hidden" id="stoch-M-ex">
+            <button class="ex-btn sma50" id="stoch-M-sma" onclick="toggleEx(this)">SMA 50</button>
+            <button class="ex-btn cross" id="stoch-M-cross" onclick="toggleEx(this)">K &lt; <input class="num-input" type="number" id="stoch-M-cv" value="30" min="1" max="99" onclick="event.stopPropagation()"></button>
+          </div>
+        </div>
+
+        <!-- أسبوعي -->
+        <div class="tf-row">
+          <button class="tf-chip" id="stoch-W" onclick="toggleTF('stoch','W')"><div class="ck">✓</div>أسبوعي</button>
+          <div class="tf-extras hidden" id="stoch-W-ex">
+            <button class="ex-btn sma50" id="stoch-W-sma" onclick="toggleEx(this)">SMA 50</button>
+            <button class="ex-btn cross" id="stoch-W-cross" onclick="toggleEx(this)">K &lt; <input class="num-input" type="number" id="stoch-W-cv" value="30" min="1" max="99" onclick="event.stopPropagation()"></button>
+          </div>
+        </div>
+
+        <!-- يومي -->
+        <div class="tf-row">
+          <button class="tf-chip" id="stoch-D" onclick="toggleTF('stoch','D')"><div class="ck">✓</div>يومي</button>
+          <div class="tf-extras hidden" id="stoch-D-ex">
+            <button class="ex-btn sma50" id="stoch-D-sma" onclick="toggleEx(this)">SMA 50</button>
+            <button class="ex-btn cross" id="stoch-D-cross" onclick="toggleEx(this)">K &lt; <input class="num-input" type="number" id="stoch-D-cv" value="30" min="1" max="99" onclick="event.stopPropagation()"></button>
+            <button class="ex-btn trig" id="stoch-D-trig" onclick="toggleEx(this)">⚡ زناد</button>
+          </div>
+        </div>
+
+      </div>
     </div>
-    <div class="sort-bar">
-      <button class="sort-btn sel" onclick="setSort('score',this)">الأقوى</button>
-      <button class="sort-btn" onclick="setSort('change',this)">التغيير</button>
+
+  </div><!-- /ind-grid -->
+</div><!-- /panel -->
+
+<!-- ── RESULTS PANEL ── -->
+<div class="panel">
+  <div class="results-meta">
+    <span class="res-count" id="resCount">—</span>
+    <span class="res-label">سهم مطابق</span>
+    <div class="sort-row">
+      <button class="sort-btn on" onclick="setSort('score',this)">الأقوى</button>
+      <button class="sort-btn" onclick="setSort('chg',this)">التغيير</button>
       <button class="sort-btn" onclick="setSort('sym',this)">الرمز</button>
     </div>
   </div>
-
-  <div class="table-wrap">
-    <div class="table-scroll">
-      <table>
-        <thead><tr id="headRow"></tr></thead>
-        <tbody id="resultsBody">
-          <tr><td colspan="20">
-            <div class="empty">
-              <div class="empty-icon">📊</div>
-              <div class="empty-t">اضغط "فحص السوق" للبدء</div>
-              <div class="empty-s">يشمل كامل أسهم تداول السعودي</div>
-            </div>
-          </td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="status-bar">
-      <div class="stat"><div class="stat-dot" style="background:var(--green)"></div><span id="stBull">إشارة دخول: 0</span></div>
-      <div class="stat"><div class="stat-dot" style="background:var(--gold)"></div><span id="stCond">شرط فقط: 0</span></div>
-      <div class="stat"><div class="stat-dot" style="background:var(--red)"></div><span id="stBear">هابط: 0</span></div>
-      <span style="margin-right:auto;color:var(--text3);font-size:11px" id="scanTime"></span>
-    </div>
+  <div style="overflow-x:auto">
+    <table>
+      <thead><tr id="tHead"></tr></thead>
+      <tbody id="tBody">
+        <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text3)">
+          <div style="font-size:32px;margin-bottom:10px">📊</div>
+          اضغط "فحص يدوي" للبدء<br>
+          <span style="font-size:11px">يفحص كامل أسهم تداول السعودي</span>
+        </td></tr>
+      </tbody>
+    </table>
   </div>
-
-  <!-- Strategy Section -->
-  <div class="strat-section">
-    <div class="panel-title">الاستراتيجيات المحفوظة</div>
-    <div class="save-form">
-      <input class="strat-input" id="stratName" placeholder="اسم الاستراتيجية..." maxlength="50">
-      <input class="strat-input strat-email-input" id="stratEmail" type="email" placeholder="إيميل التنبيه (اختياري)">
-      <button class="btn btn-gold" onclick="saveStrategy()">💾 حفظ</button>
-      <span style="font-size:11px;color:var(--text3)" id="stratCountLbl"></span>
-    </div>
-
-    <!-- EmailJS config (collapsed) -->
-    <div class="ejs-cfg-bar">
-      <span style="font-size:11px;color:var(--text3)">⚙️ إعداد EmailJS:</span>
-      <code class="ejs-val" id="dispSID">—</code>
-      <button class="btn-ejs-cfg" onclick="toggleEJSBox()">تعديل</button>
-    </div>
-    <div id="ejsBox" style="display:none" class="ejs-cfg-form">
-      <input class="strat-input" id="ejsPK" placeholder="Public Key">
-      <input class="strat-input" id="ejsSID" placeholder="Service ID">
-      <input class="strat-input" id="ejsTID" placeholder="Template ID">
-      <button class="btn btn-outline btn-sm" onclick="saveEJS()">💾 حفظ الإعدادات</button>
-    </div>
-
-    <div class="strat-list" id="stratList">
-      <span class="no-strat">لا توجد استراتيجيات محفوظة بعد</span>
-    </div>
-  </div>
-
+  <div style="margin-top:10px;font-size:11px;color:var(--text3)" id="statsRow"></div>
 </div>
 
-<script>
-// ══════════════════════════════════════════════
-//  GLOBAL ERROR HANDLER
-// ══════════════════════════════════════════════
-window.onerror=function(msg,src,line,col,err){
-  // Suppress generic Script errors from cross-origin or minor issues
-  if(msg==='Script error.'||msg==='Script error') return true;
-  return false;
-};
+<!-- ── STRATEGIES PANEL ── -->
+<div class="panel">
+  <div class="panel-title">الاستراتيجيات المحفوظة</div>
+  <div class="strat-form">
+    <input class="strat-input" id="stratName" placeholder="اسم الاستراتيجية...">
+    <input class="strat-input" id="stratEmail" placeholder="إيميل التنبيه (اختياري)">
+    <button class="btn btn-gold" onclick="saveStrategy()">💾 حفظ</button>
+  </div>
+  <div class="strat-list" id="stratList">
+    <span class="no-strat">لا توجد استراتيجيات محفوظة بعد — احفظ استراتيجية لبدء الفحص التلقائي</span>
+  </div>
+</div>
 
-// ══════════════════════════════════════════════
-//  DATA
-// ══════════════════════════════════════════════
+</div><!-- /container -->
+
+<script>
+// ══════════════════════════════════════════════════
+//  MARKET DATA
+// ══════════════════════════════════════════════════
 const SECTORS={banking:'البنوك',energy:'الطاقة',materials:'المواد الأساسية',telecom:'الاتصالات',real_estate:'العقارات',retail:'التجزئة',healthcare:'الرعاية الصحية',food:'الأغذية',insurance:'التأمين',utilities:'المرافق',transport:'النقل',media:'الإعلام',hotel:'الفنادق',capital:'الاستثمار',pharma:'الأدوية',agri:'الزراعة',construction:'المقاولات'};
 const RAW_MARKET=[
-  {sym:'1010',name:'بنك الرياض المالية',s:'banking'},{sym:'1020',name:'بنك الجزيرة',s:'banking'},
+  {sym:'1010',name:'بنك الرياض',s:'banking'},{sym:'1020',name:'بنك الجزيرة',s:'banking'},
   {sym:'1030',name:'البنك السعودي الفرنسي',s:'banking'},{sym:'1050',name:'البنك البريطاني السعودي',s:'banking'},
   {sym:'1060',name:'البنك السعودي للاستثمار',s:'banking'},{sym:'1080',name:'البنك العربي الوطني',s:'banking'},
   {sym:'1120',name:'مصرف الراجحي',s:'banking'},{sym:'1140',name:'البنك الأهلي السعودي',s:'banking'},
@@ -615,7 +328,7 @@ const RAW_MARKET=[
   {sym:'2050',name:'سافكو',s:'materials'},{sym:'2060',name:'ينساب',s:'materials'},
   {sym:'2070',name:'المجموعة السعودية',s:'materials'},{sym:'2080',name:'الدمام للأنابيب',s:'materials'},
   {sym:'2090',name:'ميبكو',s:'materials'},{sym:'2100',name:'أميانتيت',s:'materials'},
-  {sym:'2110',name:'صناعة الورق',s:'materials'},{sym:'2130',name:'المتحدة للأسمنت',s:'materials'},
+  {sym:'2110',name:'الكابلات السعودية',s:'materials'},{sym:'2130',name:'المتحدة للأسمنت',s:'materials'},
   {sym:'2150',name:'ينبع للأسمنت',s:'materials'},{sym:'2160',name:'الجوف للأسمنت',s:'materials'},
   {sym:'2170',name:'أبو قير للأسمدة',s:'materials'},{sym:'2180',name:'الزامل للصناعة',s:'materials'},
   {sym:'2190',name:'سبكيم',s:'materials'},{sym:'2210',name:'نماء للكيماويات',s:'materials'},
@@ -623,8 +336,7 @@ const RAW_MARKET=[
   {sym:'2290',name:'أبناء عبدالعزيز',s:'materials'},{sym:'2300',name:'أسمنت القصيم',s:'materials'},
   {sym:'2330',name:'مجموعة الصناعات',s:'materials'},{sym:'2340',name:'الصناعات الوطنية',s:'materials'},
   {sym:'2350',name:'الحديد والصلب',s:'materials'},{sym:'2360',name:'سالكو',s:'materials'},
-  {sym:'2381',name:'بي إس إف',s:'materials'},{sym:'4110',name:'أسمنت',s:'materials'},
-  {sym:'4320',name:'أنابيب',s:'materials'},
+  {sym:'2381',name:'بي إس إف',s:'materials'},{sym:'4110',name:'أسمنت',s:'materials'},{sym:'4320',name:'أنابيب',s:'materials'},
   {sym:'4001',name:'الاتصالات السعودية',s:'telecom'},{sym:'4004',name:'موبايلي',s:'telecom'},
   {sym:'4007',name:'زين السعودية',s:'telecom'},{sym:'4031',name:'بيانات',s:'telecom'},
   {sym:'4020',name:'دار الأركان',s:'real_estate'},{sym:'4090',name:'المملكة القابضة',s:'real_estate'},
@@ -635,7 +347,7 @@ const RAW_MARKET=[
   {sym:'4003',name:'جرير',s:'retail'},{sym:'4008',name:'بن داود',s:'retail'},
   {sym:'4009',name:'العثيم',s:'retail'},{sym:'4012',name:'المراكز العربية',s:'retail'},
   {sym:'4014',name:'ساكو',s:'retail'},{sym:'4190',name:'ألشيا',s:'retail'},
-  {sym:'4192',name:'لازوردي',s:'retail'},{sym:'4193',name:'أسواق عبدالله',s:'retail'},
+  {sym:'4192',name:'لازوردي',s:'retail'},{sym:'4193',name:'نايس ون',s:'retail'},
   {sym:'4005',name:'مستشفى الملك فهد',s:'healthcare'},{sym:'4040',name:'دله الصحية',s:'healthcare'},
   {sym:'4130',name:'بوبا العربية',s:'healthcare'},{sym:'4140',name:'نادك',s:'healthcare'},
   {sym:'4160',name:'الحمادي',s:'healthcare'},{sym:'4170',name:'المتقدمة الطبية',s:'healthcare'},
@@ -660,9 +372,9 @@ const RAW_MARKET=[
   {sym:'5111',name:'المياه الوطنية',s:'utilities'},
   {sym:'4080',name:'النقل الوطنية',s:'transport'},{sym:'4030',name:'ناقلات',s:'transport'},
   {sym:'4210',name:'روتانا',s:'media'},
-  {sym:'1211',name:'رأس المال الأول',s:'capital'},{sym:'1820',name:'مجموعة تداول',s:'capital'},
+  {sym:'1211',name:'معادن',s:'capital'},{sym:'1820',name:'مجموعة تداول',s:'capital'},
   {sym:'3001',name:'النمر',s:'construction'},{sym:'3002',name:'المباني',s:'construction'},
-  {sym:'3010',name:'المسيليح',s:'construction'},{sym:'3020',name:'أبناء حسن',s:'construction'},
+  {sym:'3010',name:'أسمنت العربية',s:'construction'},{sym:'3020',name:'أبناء حسن',s:'construction'},
   {sym:'3030',name:'الرواد',s:'construction'},{sym:'3040',name:'الثقة',s:'construction'},
   {sym:'3050',name:'المرشد',s:'construction'},{sym:'3060',name:'الزهراء',s:'construction'},
   {sym:'3070',name:'إعمار المقاولات',s:'construction'},{sym:'3080',name:'عقد',s:'construction'},
@@ -672,951 +384,542 @@ const RAW_MARKET=[
   {sym:'4500',name:'ثمار',s:'agri'},{sym:'4501',name:'العُلا للزراعة',s:'agri'},
   {sym:'4502',name:'الجوف',s:'agri'},{sym:'4503',name:'الروضة',s:'agri'},{sym:'4504',name:'نخيل',s:'agri'},
 ];
-const MARKET=Object.values(RAW_MARKET.reduce((a,s)=>{if(!a[s.sym])a[s.sym]={...s,sector:s.s,sectorAr:SECTORS[s.s]||s.s};return a},{}));
+const MARKET=Object.values(RAW_MARKET.reduce((a,s)=>{
+  if(!a[s.sym])a[s.sym]={...s,sector:s.s,sectorAr:SECTORS[s.s]||s.s};return a;
+},{}));
 document.getElementById('totalCnt').textContent=MARKET.length;
 
-// ══════════════════════════════════════════════
-//  CONSTANTS
-// ══════════════════════════════════════════════
-const TF_ORDER=['M','W','D'];
-const TF_AR={M:'شهري',W:'أسبوعي',D:'يومي'};
+// ══════════════════════════════════════════════════
+//  UI HELPERS
+// ══════════════════════════════════════════════════
+function isOn(id){return!!document.getElementById(id)?.classList.contains('on')}
 
-// ══════════════════════════════════════════════
-//  HELPERS
-// ══════════════════════════════════════════════
-function rnd(a,b){return Math.random()*(b-a)+a}
-function getColor(s){return s>=80?'#22c55e':s>=60?'#84cc16':s>=40?'#d4a843':s>=20?'#f97316':'#ef4444'}
-function toast(msg,type='success'){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast show '+type;
-  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);
+function toggleTF(ind,tf){
+  const btn=document.getElementById(`${ind}-${tf}`);
+  const exDiv=document.getElementById(`${ind}-${tf}-ex`);
+  const nowOn=!btn.classList.contains('on');
+  btn.classList.toggle('on',nowOn);
+  if(exDiv){
+    exDiv.classList.toggle('hidden',!nowOn);
+    if(!nowOn) exDiv.querySelectorAll('.ex-btn').forEach(b=>b.classList.remove('on'));
+  }
 }
 
-// ══════════════════════════════════════════════
-//  UI CONTROLS
-// ══════════════════════════════════════════════
-function syncCard(ind){try{
+function toggleEx(btn){btn.classList.toggle('on');}
+
+function syncCard(ind){
   const on=document.getElementById(ind+'On').checked;
-  document.getElementById(ind+'Card').classList.toggle('active',on);
   document.getElementById(ind+'Card').classList.toggle('disabled',!on);
-}catch(e){}}
-function syncCrossUI(){} // no longer used globally
-function syncCrossTF(tf){try{
-  const on=document.getElementById(`crossEnabled_${tf}`)?.checked;
-  const valEl=document.getElementById(`crossVal_${tf}`);
-  if(valEl) valEl.disabled=!on;
-}catch(e){}}
-
-// زناد مخصص لكل إطار — يلغي الزناد النهائي العام
-function syncTrigTF(ind, tf){try{
-  const checked=document.getElementById(`${ind}Trig_${tf}`)?.checked;
-  // إذا شغّلناه نطفي باقي الزنادات لنفس المؤشر
-  if(checked){
-    ['M','W','D'].forEach(t=>{
-      if(t!==tf){
-        const el=document.getElementById(`${ind}Trig_${t}`);
-        if(el) el.checked=false;
-      }
-    });
-  }
-  updateMTFHint();
-}catch(e){}}
-
-// جلب الإطار المحدد كزناد لكل مؤشر
-function getTrigTF(ind){
-  for(const tf of ['M','W','D']){
-    const el=document.getElementById(`${ind}Trig_${tf}`);
-    if(el?.checked) return tf;
-  }
-  return null; // لا يوجد زناد مخصص → يستخدم الزناد النهائي العام
 }
 
-function getCrossPerTF(){
-  const result={};
-  ['M','W','D'].forEach(tf=>{
-    const enabled=document.getElementById(`crossEnabled_${tf}`)?.checked||false;
-    const val=parseInt(document.getElementById(`crossVal_${tf}`)?.value||'30');
-    result[tf]={enabled,val};
-  });
-  return result;
+function toggleStochEdit(){
+  document.getElementById('stochParamsBox').classList.toggle('open');
 }
-function toggleTF(btn){try{
-  const ind=btn.dataset.ind;
-  const tf=btn.dataset.tf;
-  // لا إجبارية — تقدر تطفي كل الإطارات
-  btn.classList.toggle('sel');
-  const isNowSelected=btn.classList.contains('sel');
-  // SMA toggle
-  const smaDiv=document.getElementById(`${ind}-sma-${tf}`);
-  if(smaDiv){
-    smaDiv.classList.toggle('tf-sma-inactive',!isNowSelected);
-    if(!isNowSelected){
-      const smaCb=document.getElementById(`${ind}SMA_${tf}`);
-      if(smaCb) smaCb.checked=false;
-    }
-  }
-  // DIF>0 toggle (DMA only)
-  if(ind==='dma'){
-    const zeroDiv=document.getElementById(`dma-zero-${tf}`);
-    if(zeroDiv){
-      zeroDiv.classList.toggle('tf-sma-inactive',!isNowSelected);
-      if(!isNowSelected){
-        const zeroCb=document.getElementById(`dmaZero_${tf}`);
-        if(zeroCb) zeroCb.checked=false;
-      }
-    }
-  }
-  // Cross threshold row (Stoch only)
-  if(ind==='stoch'){
-    const crossRow=document.getElementById(`stoch-cross-${tf}`);
-    if(crossRow) crossRow.classList.toggle('tf-sma-inactive',!isNowSelected);
-    if(!isNowSelected){
-      const crossCb=document.getElementById(`crossEnabled_${tf}`);
-      if(crossCb) crossCb.checked=false;
-      syncCrossTF(tf);
-    }
-  }
-  // زناد مخصص
-  const trigDiv=document.getElementById(`${ind}-trig-${tf}`);
-  if(trigDiv){
-    trigDiv.classList.toggle('tf-sma-inactive',!isNowSelected);
-    if(!isNowSelected){
-      const trigCb=document.getElementById(`${ind}Trig_${tf}`);
-      if(trigCb) trigCb.checked=false;
-    }
-  }
-}catch(e){}}
-function getSelTFs(ind){
-  const sel=[...document.querySelectorAll(`.tf-chip[data-ind="${ind}"].sel`)].map(c=>c.dataset.tf);
-  return TF_ORDER.filter(t=>sel.includes(t));
-}
-function toggleStochParams(){try{
-  const box=document.getElementById('stochParamsBox');
-  box.style.display=box.style.display==='none'?'block':'none';
-}catch(e){}}
-function updateStochBadge(){try{
+function updateStochBadge(){
   const k=document.getElementById('stochK').value;
   const d=document.getElementById('stochD').value;
   const s=document.getElementById('stochS').value;
   document.getElementById('stochBadge').textContent=`${k} · ${d} · ${s}`;
-}catch(e){}}
+}
+
+let currentSort='score';
 function setSort(s,btn){
   currentSort=s;
-  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
+  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
   if(lastResults.length) renderTable(lastResults);
 }
 
-// ══════════════════════════════════════════════
-//  MTF HINT — shows user the logic
-// ══════════════════════════════════════════════
-function updateMTFHint(){
-  ['dma','stoch'].forEach(ind=>{
-    const onEl=document.getElementById(ind+'On');
-    const hint=document.getElementById(ind+'MtfText');
-    if(!hint||!onEl) return;
-    const on=onEl.checked;
-    const tfs=getSelTFs(ind);
-    if(!on){hint.innerHTML='المؤشر مُعطّل';return;}
-    if(tfs.length===0){hint.innerHTML='اختر إطاراً زمنياً';return;}
-    if(tfs.length===1){
-      hint.innerHTML=`زناد الدخول: تقاطع إيجابي على <span class="mtf-step mtf-trig">▶ ${TF_AR[tfs[0]]}</span>`;
-    } else if(tfs.length===2){
-      hint.innerHTML=`شرط: <span class="mtf-step mtf-cond">✓ ${TF_AR[tfs[0]]}</span> إيجابي &nbsp;+&nbsp; زناد: <span class="mtf-step mtf-trig">▶ ${TF_AR[tfs[1]]}</span> تقاطع`;
-    } else {
-      hint.innerHTML=`شرط: <span class="mtf-step mtf-cond">✓ ${TF_AR[tfs[0]]}</span> <span class="mtf-step mtf-cond">✓ ${TF_AR[tfs[1]]}</span> إيجابيان &nbsp;+&nbsp; زناد: <span class="mtf-step mtf-trig">▶ ${TF_AR[tfs[2]]}</span>`;
-    }
-  });
+function toast(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.borderColor=type==='ok'?'var(--green)':type==='err'?'var(--red)':'var(--border2)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-// ══════════════════════════════════════════════
-//  API — بيانات حقيقية من sahmk.sa
-// ══════════════════════════════════════════════
-async function apiFetch(path, params={}){
-  const url=new URL('/api/sahmk', window.location.origin);
-  url.searchParams.set('path', path);
+// ══════════════════════════════════════════════════
+//  TIME / MARKET HELPERS
+// ══════════════════════════════════════════════════
+function riyadhNow(){
+  return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
+}
+function dateStr(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function marketOpen(){
+  const r=riyadhNow(),t=r.getHours()*60+r.getMinutes();
+  return r.getDay()>=0&&r.getDay()<=4&&t>=600&&t<=930;
+}
+function lastTradingDay(){
+  const r=riyadhNow();
+  const d=new Date(r);
+  if(!marketOpen()) d.setDate(d.getDate()-1);
+  while(d.getDay()===5||d.getDay()===6) d.setDate(d.getDate()-1);
+  return dateStr(d);
+}
+
+// ══════════════════════════════════════════════════
+//  API
+// ══════════════════════════════════════════════════
+async function apiFetch(path,params={}){
+  const url=new URL('/api/sahmk',window.location.origin);
+  url.searchParams.set('path',path);
   Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
-  const res=await fetch(url.toString());
-  if(!res.ok) throw new Error(`API error ${res.status}`);
-  return res.json();
+  const r=await fetch(url.toString());
+  if(!r.ok) throw new Error(r.status);
+  return r.json();
 }
 
-// ── بناء شمعات أسبوعية/شهرية من بيانات يومية ──
-function buildCandles(dailyCandles, tf){
-  const sorted=[...dailyCandles].sort((a,b)=>new Date(a.date)-new Date(b.date));
-  if(tf==='D') return sorted;
-  const groups={};
-  for(const c of sorted){
+// ══════════════════════════════════════════════════
+//  CANDLE BUILDER
+// ══════════════════════════════════════════════════
+function buildCandles(daily,tf){
+  if(tf==='D') return daily;
+  const g={};
+  for(const c of daily){
     const d=new Date(c.date);
     let key;
     if(tf==='W'){
-      // مفتاح الأسبوع: السنة + رقم الأسبوع (الأحد = بداية الأسبوع)
-      const day=d.getDay(); // 0=Sun
-      const weekStart=new Date(d);
-      weekStart.setDate(d.getDate()-day);
-      const y=weekStart.getFullYear();
-      const m=String(weekStart.getMonth()+1).padStart(2,'0');
-      const dd=String(weekStart.getDate()).padStart(2,'0');
-      key=`${y}-${m}-${dd}`;
+      const ws=new Date(d); ws.setDate(d.getDate()-d.getDay());
+      key=dateStr(ws);
     } else {
-      // شهري: السنة-الشهر
       key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
     }
-    if(!groups[key]) groups[key]=[];
-    groups[key].push(c);
+    if(!g[key]) g[key]=[];
+    g[key].push(c);
   }
-  return Object.entries(groups).sort(([a],[b])=>a.localeCompare(b)).map(([key,candles])=>({
-    date: tf==='W' ? key : key+'-01',
-    open:  candles[0].open,
-    high:  Math.max(...candles.map(c=>parseFloat(c.high))),
-    low:   Math.min(...candles.map(c=>parseFloat(c.low))),
-    close: candles[candles.length-1].close,
-    volume: candles.reduce((s,c)=>s+parseFloat(c.volume||0),0),
+  return Object.entries(g).sort(([a],[b])=>a.localeCompare(b)).map(([key,cs])=>({
+    date:tf==='W'?key:key+'-01',
+    open:parseFloat(cs[0].open),
+    high:Math.max(...cs.map(c=>parseFloat(c.high))),
+    low:Math.min(...cs.map(c=>parseFloat(c.low))),
+    close:parseFloat(cs[cs.length-1].close),
+    volume:cs.reduce((s,c)=>s+parseFloat(c.volume||0),0),
   }));
 }
 
-async function fetchStockTF(sym, tf){
-  // دائماً نجلب 7 سنوات من البيانات اليومية (كافية لكل الإطارات)
-  const nowRiyadh=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-  const ry=nowRiyadh.getFullYear(),rm=String(nowRiyadh.getMonth()+1).padStart(2,'0'),rd=String(nowRiyadh.getDate()).padStart(2,'0');
-  const toStr=`${ry}-${rm}-${rd}`;
-  const from=new Date(nowRiyadh);
-  from.setFullYear(from.getFullYear()-7); // 7 سنوات كافية لكل الإطارات
-  const fy=from.getFullYear(),fm=String(from.getMonth()+1).padStart(2,'0'),fd=String(from.getDate()).padStart(2,'0');
-  const data=await apiFetch(`historical/${sym}`,{
-    period:'daily',
-    from:`${fy}-${fm}-${fd}`,
-    to:toStr,
-  });
-  const rawCandles=data?.data||data?.results||data?.candles||[];
-  // استبعاد الجمعة والسبت
-  const dailyFiltered=rawCandles.filter(c=>{
-    const d=new Date(c.date); return d.getDay()!==5&&d.getDay()!==6;
+// ══════════════════════════════════════════════════
+//  FETCH STOCK
+// ══════════════════════════════════════════════════
+async function fetchStock(sym){
+  const r=riyadhNow();
+  const to=dateStr(r);
+  const from=new Date(r); from.setFullYear(from.getFullYear()-7);
+  const data=await apiFetch(`historical/${sym}`,{period:'daily',from:dateStr(from),to});
+  const raw=(data?.data||data?.results||[]).filter(c=>{
+    const dw=new Date(c.date).getDay(); return dw!==5&&dw!==6;
   }).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if(raw.length<15) return null;
 
-  if(dailyFiltered.length<60) return null;
+  // تحقق آخر يوم تداول
+  const lastDate=raw[raw.length-1]?.date?.split('T')[0];
+  const ltd=lastTradingDay();
+  const diff=(new Date(ltd)-new Date(lastDate))/(86400000);
+  if(diff>7) return null;
 
-  // ── تحقق إن البيانات اليومية محدّثة ──
-  const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-  const timeMin=nowR.getHours()*60+nowR.getMinutes();
-  const isMarketOpen=nowR.getDay()>=0&&nowR.getDay()<=4&&timeMin>=600&&timeMin<=930;
-  const lastDailyDate=dailyFiltered[dailyFiltered.length-1]?.date?.split('T')[0];
-
-  // حساب آخر يوم تداول
-  let lastTrading=new Date(nowR);
-  if(!isMarketOpen){
-    lastTrading.setDate(lastTrading.getDate()-1);
-    while(lastTrading.getDay()===5||lastTrading.getDay()===6)
-      lastTrading.setDate(lastTrading.getDate()-1);
-  } else {
-    while(lastTrading.getDay()===5||lastTrading.getDay()===6)
-      lastTrading.setDate(lastTrading.getDate()-1);
-  }
-  const lty=lastTrading.getFullYear(),ltm=String(lastTrading.getMonth()+1).padStart(2,'0'),ltd=String(lastTrading.getDate()).padStart(2,'0');
-  const lastTradingStr=`${lty}-${ltm}-${ltd}`;
-  if(lastDailyDate!==lastTradingStr){
-    // نسمح بفارق حتى 3 أيام تداول (بعض الأسهم قليلة السيولة)
-    const daysDiff=(new Date(lastTradingStr)-new Date(lastDailyDate))/(1000*60*60*24);
-    if(daysDiff>7) return null;
-  }
-
-  // ── إضافة الشمعة الحية لليومية قبل البناء (أثناء السوق فقط) ──
-  const workingDaily=[...dailyFiltered];
-  if(isMarketOpen){
+  // شمعة حية أثناء السوق
+  const working=[...raw];
+  if(marketOpen()){
     try{
-      const quote=await apiFetch(`quote/${sym}`);
-      if(quote?.price){
-        const lp=parseFloat(quote.price),lh=parseFloat(quote.high||quote.price);
-        const ll=parseFloat(quote.low||quote.price),lo=parseFloat(quote.open||quote.price);
-        const ty=nowR.getFullYear(),tm2=String(nowR.getMonth()+1).padStart(2,'0'),td2=String(nowR.getDate()).padStart(2,'0');
-        const todayStr=`${ty}-${tm2}-${td2}`;
-        const last=workingDaily[workingDaily.length-1];
-        const liveCandle={date:todayStr,open:lo,high:lh,low:ll,close:lp,volume:0,adjusted_close:lp};
-        if(last?.date?.split('T')[0]===todayStr) workingDaily[workingDaily.length-1]=liveCandle;
-        else workingDaily.push(liveCandle);
+      const q=await apiFetch(`quote/${sym}`);
+      if(q?.price){
+        const lp=parseFloat(q.price);
+        const live={date:dateStr(riyadhNow()),open:parseFloat(q.open||lp),high:parseFloat(q.high||lp),low:parseFloat(q.low||lp),close:lp,volume:0,adjusted_close:lp};
+        const ld=working[working.length-1]?.date?.split('T')[0];
+        if(ld===live.date) working[working.length-1]=live; else working.push(live);
       }
     }catch(e){}
   }
 
-  // ── بناء الشمعات حسب الإطار من البيانات اليومية (مع الشمعة الحية إن وجدت) ──
-  const built=buildCandles(workingDaily, tf);
-  if(built.length<10) return null;
-  const sorted=[...built].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  // بناء الإطارات
+  const tfData={};
+  for(const tf of ['D','W','M']){
+    const built=buildCandles(working,tf).sort((a,b)=>new Date(a.date)-new Date(b.date));
+    if(built.length<2) continue;
+    tfData[tf]={closes:built.map(c=>c.close),highs:built.map(c=>c.high),lows:built.map(c=>c.low)};
+  }
 
-  return{
-    closes:    sorted.map(c=>parseFloat(c.close)),
-    highs:     sorted.map(c=>parseFloat(c.high)),
-    lows:      sorted.map(c=>parseFloat(c.low)),
-    lastCandle:sorted[sorted.length-1],
-    count:     sorted.length,
-    _rawDaily: workingDaily,
-    sorted,
-  };
+  const dc=tfData['D']?.closes||[];
+  const price=dc[dc.length-1]||0;
+  const prev=dc[dc.length-2]||price;
+  const chg=prev?+((price-prev)/prev*100).toFixed(2):0;
+  return {sym,price,chg,tfData};
 }
 
+// ══════════════════════════════════════════════════
+//  INDICATORS
+// ══════════════════════════════════════════════════
 function calcDMA(closes){
-  if(closes.length<62) return null;
+  const n=closes.length;
+  if(n<62) return null;
   const sma=(arr,p,i)=>arr.slice(i-p+1,i+1).reduce((a,b)=>a+b,0)/p;
-  const dl=[];
-  for(let i=49;i<closes.length;i++) dl.push(sma(closes,10,i)-sma(closes,50,i));
-  if(dl.length<12) return null;
-  const k=2/11; let sig=dl.slice(0,10).reduce((a,b)=>a+b,0)/10;
-  const sl=[sig];
-  for(let i=10;i<dl.length;i++){sig=dl[i]*k+sig*(1-k);sl.push(sig);}
-  const n=dl.length-1,sn=sl.length-1;
-  const curDma=dl[n],curSig=sl[sn];
-
-  // تقاطع في آخر شمعة فقط
-  const isCrossover=dl[n-1]<sl[sn-1] && dl[n]>sl[sn];
-
-  return{
-    curDma,curSig,
-    prevDma:dl[n-1],prevSig:sl[sn-1],
-    isPositive: curDma>curSig,
-    isCrossover,
-    isBullCross:isCrossover,
-    isBearish:  curDma<curSig,
-  };
+  const dif=[];
+  for(let i=49;i<n;i++) dif.push(sma(closes,10,i)-sma(closes,50,i));
+  if(dif.length<12) return null;
+  const k=2/11;
+  let sig=dif.slice(0,10).reduce((a,b)=>a+b,0)/10;
+  const sigs=[sig];
+  for(let i=10;i<dif.length;i++){sig=dif[i]*k+sig*(1-k);sigs.push(sig);}
+  const ni=dif.length-1,ns=sigs.length-1;
+  return{curDif:dif[ni],curSig:sigs[ns],prevDif:dif[ni-1],prevSig:sigs[ns-1],
+    isPos:dif[ni]>sigs[ns],isCross:dif[ni-1]<sigs[ns-1]&&dif[ni]>sigs[ns]};
 }
 
-function calcStoch(highs,lows,closes,kP=5,dP=3,sl=3){
-  // TradingView Stoch(K,D,Smooth):
-  // kP = K Period (نافذة أعلى/أدنى)
-  // sl = Smooth K (تمهيد K بـ SMA)
-  // dP = D Period (SMA لـ K الممهّد)
+function calcStoch(highs,lows,closes,kP,sl,dP){
   const n=closes.length;
   if(n<kP+sl+dP+2) return null;
-
-  // حساب Raw %K
   const rawK=[];
   for(let i=kP-1;i<n;i++){
     const hh=Math.max(...highs.slice(i-kP+1,i+1));
     const ll=Math.min(...lows.slice(i-kP+1,i+1));
-    rawK.push(hh===ll ? 50 : ((closes[i]-ll)/(hh-ll))*100);
+    rawK.push(hh===ll?50:((closes[i]-ll)/(hh-ll))*100);
   }
-
-  // Smooth K = SMA(rawK, sl)
-  const smoothK=[];
-  for(let i=sl-1;i<rawK.length;i++){
-    smoothK.push(rawK.slice(i-sl+1,i+1).reduce((a,b)=>a+b,0)/sl);
-  }
-
-  // %D = SMA(smoothK, dP)
+  const sK=[];
+  for(let i=sl-1;i<rawK.length;i++) sK.push(rawK.slice(i-sl+1,i+1).reduce((a,b)=>a+b,0)/sl);
   const D=[];
-  for(let i=dP-1;i<smoothK.length;i++){
-    D.push(smoothK.slice(i-dP+1,i+1).reduce((a,b)=>a+b,0)/dP);
-  }
-
-  if(smoothK.length<2||D.length<2) return null;
-
-  const curK =smoothK[smoothK.length-1];
-  const prevK=smoothK[smoothK.length-2];
-  const curD =D[D.length-1];
-  const prevD=D[D.length-2];
-
-  return{
-    curK, curD, prevK, prevD,
-    isPositive:  curK > curD,
-    isCrossover: prevK < prevD && curK > curD,
-    isBearish:   curK < curD,
-  };
+  for(let i=dP-1;i<sK.length;i++) D.push(sK.slice(i-dP+1,i+1).reduce((a,b)=>a+b,0)/dP);
+  if(sK.length<2||D.length<2) return null;
+  const curK=sK[sK.length-1],curD=D[D.length-1];
+  const prevK=sK[sK.length-2],prevD=D[D.length-2];
+  return{curK,curD,prevK,prevD,isPos:curK>curD,isCross:prevK<prevD&&curK>curD};
 }
 
 function aboveSMA50(closes){
-  if(closes.length<50) return null;
-  return closes[closes.length-1]>closes.slice(-50).reduce((a,b)=>a+b,0)/50;
+  const n=closes.length;
+  if(n<50) return false;
+  const s=closes.slice(n-50).reduce((a,b)=>a+b,0)/50;
+  return closes[n-1]>s;
 }
 
-// ══════════════════════════════════════════════
-//  MTF FILTER ENGINE
-// ══════════════════════════════════════════════
-function evaluateMTF(signals, tfs){
-  if(tfs.length===0) return {pass:false,triggerTF:null,condResults:[]};
-  const condTFs=tfs.slice(0,-1);
-  const triggerTF=tfs[tfs.length-1];
-  const condResults=condTFs.map(tf=>({tf,positive:signals[tf]?.isPositive}));
-  const allCondsPass=condResults.every(c=>c.positive);
-  const triggerPass=signals[triggerTF]?.isCrossover;
+// ══════════════════════════════════════════════════
+//  FILTER LOGIC
+// ══════════════════════════════════════════════════
+function getSettings(){
+  const dmaOn=document.getElementById('dmaOn').checked;
+  const stochOn=document.getElementById('stochOn').checked;
+  const dmaTFs=['M','W','D'].filter(tf=>isOn(`dma-${tf}`));
+  const stochTFs=['M','W','D'].filter(tf=>isOn(`stoch-${tf}`));
   return{
-    pass:allCondsPass&&triggerPass,
-    triggerTF,condResults,allCondsPass,triggerPass,
-    partialPass:allCondsPass&&!triggerPass,
+    dmaOn, stochOn, dmaTFs, stochTFs,
+    dmaTrig: dmaOn&&isOn('dma-D-trig'),
+    stochTrig: stochOn&&isOn('stoch-D-trig'),
+    dmaEx:{
+      M:{sma:isOn('dma-M-sma'),zero:isOn('dma-M-zero')},
+      W:{sma:isOn('dma-W-sma'),zero:isOn('dma-W-zero')},
+      D:{sma:isOn('dma-D-sma'),zero:isOn('dma-D-zero')},
+    },
+    stochEx:{
+      M:{sma:isOn('stoch-M-sma'),cross:isOn('stoch-M-cross'),cv:+document.getElementById('stoch-M-cv').value||30},
+      W:{sma:isOn('stoch-W-sma'),cross:isOn('stoch-W-cross'),cv:+document.getElementById('stoch-W-cv').value||30},
+      D:{sma:isOn('stoch-D-sma'),cross:isOn('stoch-D-cross'),cv:+document.getElementById('stoch-D-cv').value||30},
+    },
+    stochK:+document.getElementById('stochK').value||5,
+    stochD:+document.getElementById('stochD').value||3,
+    stochS:+document.getElementById('stochS').value||3,
   };
 }
 
-// ══════════════════════════════════════════════
-//  SCORE
-// ══════════════════════════════════════════════
-function calcScoreV2(dmaMTF,stochMTF,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMAPerTF,dmaAboveSMAPerTF,stochAboveSMAPerTF){
-  let s=40;
-  if(dmaOn){
-    if(dmaMTF.pass)s+=30;
-    else if(dmaMTF.partialPass)s+=12;
-    dmaTFs.forEach(tf=>{if(dmaSMAPerTF[tf]&&dmaAboveSMAPerTF[tf])s+=4;});
+function evalDMA(stock,cfg){
+  if(!cfg.dmaOn||cfg.dmaTFs.length===0) return null;
+  for(const tf of cfg.dmaTFs){
+    const d=stock.tfData[tf];
+    if(!d) return false;
+    const s=calcDMA(d.closes);
+    if(!s) return false;
+    const ex=cfg.dmaEx[tf];
+    // شرط SMA50
+    if(ex.sma&&!aboveSMA50(d.closes)) return false;
+    // شرط DIF>0
+    if(ex.zero&&s.curDif<=0) return false;
+    // شرط الإطار الزمني
+    if(tf==='D'&&cfg.dmaTrig){
+      // زناد: تقاطع في آخر شمعة
+      if(!s.isCross) return false;
+    } else {
+      // شرط: DIF فوق DIFMA
+      if(!s.isPos) return false;
+    }
   }
-  if(stochOn){
-    if(stochMTF.pass)s+=30;
-    else if(stochMTF.partialPass)s+=12;
-    stochTFs.forEach(tf=>{if(stochSMAPerTF[tf]&&stochAboveSMAPerTF[tf])s+=4;});
-  }
-  return Math.max(0,Math.min(100,Math.round(s)));
+  return true;
 }
 
-// ══════════════════════════════════════════════
-//  SCAN — بيانات حقيقية
-// ══════════════════════════════════════════════
+function evalStoch(stock,cfg){
+  if(!cfg.stochOn||cfg.stochTFs.length===0) return null;
+  const {stochK:kP,stochS:sl,stochD:dP}=cfg;
+  for(const tf of cfg.stochTFs){
+    const d=stock.tfData[tf];
+    if(!d) return false;
+    const s=calcStoch(d.highs,d.lows,d.closes,kP,sl,dP);
+    if(!s) return false;
+    const ex=cfg.stochEx[tf];
+    // شرط SMA50
+    if(ex.sma&&!aboveSMA50(d.closes)) return false;
+    // شرط مستوى K
+    if(ex.cross&&s.curK>=ex.cv) return false;
+    // شرط الإطار الزمني
+    if(tf==='D'&&cfg.stochTrig){
+      if(!s.isCross) return false;
+    } else {
+      if(!s.isPos) return false;
+    }
+  }
+  return true;
+}
+
+function filterStock(stock,cfg){
+  const dmaR=evalDMA(stock,cfg);
+  const stochR=evalStoch(stock,cfg);
+  const dmaActive=cfg.dmaOn&&cfg.dmaTFs.length>0;
+  const stochActive=cfg.stochOn&&cfg.stochTFs.length>0;
+  if(!dmaActive&&!stochActive) return false;
+  if(dmaActive&&!stochActive) return dmaR===true;
+  if(!dmaActive&&stochActive) return stochR===true;
+  return dmaR===true&&stochR===true;
+}
+
+// ══════════════════════════════════════════════════
+//  SCAN
+// ══════════════════════════════════════════════════
 let lastResults=[];
-let currentSort='score';
+const BATCH=6;
 
-async function runScan(){
-  const overlay=document.getElementById('loadingOverlay');
-  const prog=document.getElementById('progressBar');
-  const countEl=document.getElementById('loadingCount');
-  overlay.classList.add('show');
-
-  const dmaOn=document.getElementById('dmaOn').checked;
-  const stochOn=document.getElementById('stochOn').checked;
-  const dmaTFs=dmaOn?getSelTFs('dma'):[];
-  const stochTFs=stochOn?getSelTFs('stoch'):[];
-  const dmaSMAPerTF={};
-  dmaTFs.forEach(tf=>dmaSMAPerTF[tf]=getSMAForTF('dma',tf));
-  const stochSMAPerTF={};
-  stochTFs.forEach(tf=>stochSMAPerTF[tf]=getSMAForTF('stoch',tf));
-  const dmaZeroPerTF={};
-  dmaTFs.forEach(tf=>dmaZeroPerTF[tf]=document.getElementById(`dmaZero_${tf}`)?.checked||false);
-  const crossPerTF=getCrossPerTF();
-  const stochK=parseInt(document.getElementById('stochK').value)||5;
-  const stochD=parseInt(document.getElementById('stochD').value)||3;
-  const stochS=parseInt(document.getElementById('stochS').value)||3;
-  const allTFs=[...new Set([...dmaTFs,...stochTFs])];
-
+async function runScan(cfg=null,silent=false){
+  const settings=cfg||getSettings();
+  if(!silent){
+    document.getElementById('overlay').classList.add('show');
+    document.getElementById('progBar').style.width='0%';
+  }
+  const results=[];
   const total=MARKET.length;
   let done=0;
-  const results=[];
-  const CONCURRENCY=15;
-
-  for(let i=0;i<total;i+=CONCURRENCY){
-    const batch=MARKET.slice(i,Math.min(i+CONCURRENCY,total));
-    const settled=await Promise.allSettled(batch.map(async stock=>{
+  for(let i=0;i<total;i+=BATCH){
+    const batch=MARKET.slice(i,Math.min(i+BATCH,total));
+    const settled=await Promise.allSettled(batch.map(async stk=>{
       try{
-        // ── جلب البيانات مرة واحدة (7 سنوات يومي) وبناء كل الإطارات ──
-        const dailyData = await fetchStockTF(stock.sym, 'D');
-        if(!dailyData) return null;
-
-        const tfData={};
-        for(const tf of allTFs){
-          if(tf==='D'){ tfData['D']=dailyData; continue; }
-          // بناء الإطار من البيانات اليومية الخام
-          const rawDaily=dailyData._rawDaily||[];
-          const builtCandles = buildCandles(rawDaily, tf);
-          if(!builtCandles||builtCandles.length<10){ tfData[tf]=null; continue; }
-          const s=[...builtCandles].sort((a,b)=>new Date(a.date)-new Date(b.date));
-          tfData[tf]={
-            closes:s.map(c=>parseFloat(c.close)),
-            highs:s.map(c=>parseFloat(c.high)),
-            lows:s.map(c=>parseFloat(c.low)),
-            lastCandle:s[s.length-1],
-            count:s.length,
-            sorted:s,
-          };
-        }
-
-        // جلب الاسم الحقيقي من quote
-        let realName = stock.name;
-        try {
-          const qData = await apiFetch(`quote/${stock.sym}`);
-          if(qData?.name) realName = qData.name;
-        } catch(e) {}
-
-        const price=tfData['D']?.lastCandle ? parseFloat(tfData['D'].lastCandle.close) :
-                    tfData['W']?.lastCandle ? parseFloat(tfData['W'].lastCandle.close) : 0;
-        const closes_d=tfData['D']?.closes||[];
-        const prev=closes_d.length>1?closes_d[closes_d.length-2]:price;
-        const chg=prev?+((price-prev)/prev*100).toFixed(2):0;
-
-        const dmaSigs={};
-        dmaTFs.forEach(tf=>{const d=tfData[tf];dmaSigs[tf]=d?calcDMA(d.closes)||{isPositive:false,isCrossover:false,isBearish:false,curDma:0,curSig:0}:{isPositive:false,isCrossover:false,isBearish:false,curDma:0,curSig:0};});
-
-        const stochSigs={};
-        stochTFs.forEach(tf=>{const d=tfData[tf];stochSigs[tf]=d?calcStoch(d.highs,d.lows,d.closes,stochK,stochD,stochS)||{isPositive:false,isCrossover:false,isBearish:false,curK:50,curD:50}:{isPositive:false,isCrossover:false,isBearish:false,curK:50,curD:50};});
-
-        const dmaAboveSMAPerTF={};
-        dmaTFs.forEach(tf=>{const d=tfData[tf];dmaAboveSMAPerTF[tf]=d?aboveSMA50(d.closes)??false:false;});
-        const stochAboveSMAPerTF={};
-        stochTFs.forEach(tf=>{const d=tfData[tf];stochAboveSMAPerTF[tf]=d?aboveSMA50(d.closes)??false:false;});
-
-        const dmaMTF=dmaOn&&dmaTFs.length>0?evaluateMTF(dmaSigs,dmaTFs):{pass:false,partialPass:false,allCondsPass:false};
-        const stochMTF=stochOn&&stochTFs.length>0?evaluateMTF(stochSigs,stochTFs):{pass:false,partialPass:false,allCondsPass:false};
-        const score=calcScoreV2(dmaMTF,stochMTF,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMAPerTF,dmaAboveSMAPerTF,stochAboveSMAPerTF);
-
-        return{...stock, name:realName, price,chg,score,dmaAboveSMAPerTF,stochAboveSMAPerTF,dmaSigs,stochSigs,dmaMTF,stochMTF,_dmaOn:dmaOn,_stochOn:stochOn,_dmaTFs:dmaTFs,_stochTFs:stochTFs,_dmaSMAPerTF:dmaSMAPerTF,_stochSMAPerTF:stochSMAPerTF,_dmaZeroPerTF:dmaZeroPerTF,_crossPerTF:crossPerTF};
+        const data=await fetchStock(stk.sym);
+        if(!data||!filterStock(data,settings)) return null;
+        // إشارات للعرض
+        const dD=data.tfData['D'];
+        const dmaD=dD?calcDMA(dD.closes):null;
+        const stochD=dD?calcStoch(dD.highs,dD.lows,dD.closes,settings.stochK,settings.stochS,settings.stochD):null;
+        const score=calcScore(evalDMA(data,settings),evalStoch(data,settings),settings);
+        return{...stk,price:data.price,chg:data.chg,dmaD,stochD,score,_cfg:settings};
       }catch(e){return null;}
     }));
     settled.forEach(r=>{if(r.status==='fulfilled'&&r.value) results.push(r.value);});
     done+=batch.length;
-    prog.style.width=Math.round(done/total*100)+'%';
-    countEl.textContent=`${done} / ${total}`;
-  }
-
-  finalizeScan(results,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMAPerTF);
-}
-
-function finalizeScan(results,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMAPerTF){
-
-  function checkStoch(s){
-    if(!stochOn||stochTFs.length===0) return null;
-    // الزناد المخصص أو آخر إطار افتراضياً
-    const customTrig=getTrigTF('stoch');
-    const trigTF = customTrig && stochTFs.includes(customTrig) ? customTrig : stochTFs[stochTFs.length-1];
-    const condTFs = stochTFs.filter(tf=>tf!==trigTF);
-    // الزناد: تقاطع K فوق D في آخر شمعة فقط
-    if(!s.stochSigs[trigTF].isCrossover) return false;
-    const trigCross=s._crossPerTF?.[trigTF];
-    if(trigCross?.enabled && s.stochSigs[trigTF].curK >= trigCross.val) return false;
-    if(stochSMAPerTF[trigTF]&&!s.stochAboveSMAPerTF[trigTF]) return false;
-    // الشروط: K فوق D (isPositive) بغض النظر عن وقت العبور
-    for(const tf of condTFs){
-      if(!s.stochSigs[tf].isPositive) return false;
-      const condCross=s._crossPerTF?.[tf];
-      if(condCross?.enabled && s.stochSigs[tf].curK >= condCross.val) return false;
-      if(stochSMAPerTF[tf]&&!s.stochAboveSMAPerTF[tf]) return false;
+    if(!silent){
+      document.getElementById('progBar').style.width=Math.round(done/total*100)+'%';
+      document.getElementById('progCount').textContent=`${done} / ${total}`;
     }
-    return true;
   }
-
-  function checkDMA(s){
-    if(!dmaOn||dmaTFs.length===0) return null;
-    // الزناد المخصص أو آخر إطار افتراضياً
-    const customTrig=getTrigTF('dma');
-    const trigTF = customTrig && dmaTFs.includes(customTrig) ? customTrig : dmaTFs[dmaTFs.length-1];
-    const condTFs = dmaTFs.filter(tf=>tf!==trigTF);
-    // الزناد: تقاطع DIF فوق DIFMA في آخر شمعة فقط
-    if(!s.dmaSigs[trigTF].isCrossover) return false;
-    if(s._dmaZeroPerTF[trigTF]&&s.dmaSigs[trigTF].curDma<=0) return false;
-    if(dmaSMAPerTF[trigTF]&&!s.dmaAboveSMAPerTF[trigTF]) return false;
-    // الشروط: DIF فوق DIFMA (isPositive)
-    for(const tf of condTFs){
-      if(!s.dmaSigs[tf].isPositive) return false;
-      if(s._dmaZeroPerTF[tf]&&s.dmaSigs[tf].curDma<=0) return false;
-      if(dmaSMAPerTF[tf]&&!s.dmaAboveSMAPerTF[tf]) return false;
-    }
-    return true;
+  lastResults=results;
+  if(!silent){
+    renderTable(results,settings);
+    buildHeader(settings);
+    document.getElementById('scanTime').textContent=`آخر فحص: ${new Date().toLocaleTimeString('ar-SA')}`;
+    setTimeout(()=>{document.getElementById('overlay').classList.remove('show');document.getElementById('progBar').style.width='0%';},400);
   }
-
-  let final=results.filter(s=>{
-    const dmaResult=checkDMA(s);
-    const stochResult=checkStoch(s);
-    // إذا كلاهما غير مفعّل → لا يظهر
-    if(dmaResult===null&&stochResult===null) return false;
-    // إذا واحد فقط مفعّل → يجب يمر
-    if(dmaResult===null) return stochResult===true;
-    if(stochResult===null) return dmaResult===true;
-    // كلاهما مفعّل → كلاهما يجب يمر
-    return dmaResult===true && stochResult===true;
-  });
-
-  lastResults=final;
-  buildHeader(dmaTFs,stochTFs,dmaOn,stochOn,dmaSMAPerTF,stochSMAPerTF);
-  renderTable(final);
-  document.getElementById('scanTime').textContent=`آخر فحص: ${new Date().toLocaleTimeString('ar-SA')}`;
-  // Auto-send email alerts for strategies that have an email configured
-  if(final.length) autoSendAlerts(final);
-  setTimeout(()=>{
-    document.getElementById('loadingOverlay').classList.remove('show');
-    document.getElementById('progressBar').style.width='0%';
-  },400);
+  return results;
 }
 
-// ══════════════════════════════════════════════
-//  BUILD HEADER
-// ══════════════════════════════════════════════
-function buildHeader(dmaTFs,stochTFs,dmaOn,stochOn,dmaSMAPerTF,stochSMAPerTF){
-  const row=document.getElementById('headRow');
-  let cols=['الرمز','الشركة','القطاع','السعر','التغيير%'];
-  if(dmaOn) dmaTFs.forEach(tf=>{
-    const role=dmaTFs.indexOf(tf)<dmaTFs.length-1?'شرط':'زناد';
-    const hasSMA=dmaSMAPerTF[tf];
-    cols.push(`DMA ${TF_AR[tf]} (${role})${hasSMA?' ★':''}`);
-  });
-  if(stochOn) stochTFs.forEach(tf=>{
-    const role=stochTFs.indexOf(tf)<stochTFs.length-1?'شرط':'زناد';
-    const hasSMA=stochSMAPerTF[tf];
-    cols.push(`Stoch ${TF_AR[tf]} (${role})${hasSMA?' ★':''}`);
-  });
-  cols.push('الإشارة');
-  cols.push('القوة');
-  row.innerHTML=cols.map(c=>`<th>${c}</th>`).join('');
+function calcScore(dmaR,stochR,cfg){
+  let s=50;
+  const dmaActive=cfg.dmaOn&&cfg.dmaTFs.length>0;
+  const stochActive=cfg.stochOn&&cfg.stochTFs.length>0;
+  if(dmaActive&&dmaR===true) s+=cfg.dmaTrig?35:25;
+  if(stochActive&&stochR===true) s+=cfg.stochTrig?35:25;
+  return Math.min(100,s);
 }
 
-// ══════════════════════════════════════════════
-//  RENDER TABLE
-// ══════════════════════════════════════════════
-function renderTable(data){
-  let sorted=[...data];
-  if(currentSort==='score') sorted.sort((a,b)=>b.score-a.score);
-  else if(currentSort==='change') sorted.sort((a,b)=>b.chg-a.chg);
-  else if(currentSort==='sym') sorted.sort((a,b)=>a.sym.localeCompare(b.sym));
+// ══════════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════════
+function buildHeader(cfg){
+  const dmaActive=cfg.dmaOn&&cfg.dmaTFs.length>0;
+  const stochActive=cfg.stochOn&&cfg.stochTFs.length>0;
+  let h='<th>الرمز</th><th>الشركة</th><th>القطاع</th><th>السعر</th><th>التغيير%</th>';
+  if(dmaActive) h+=`<th>DMA يومي${cfg.dmaTrig?' (زناد)':''}</th>`;
+  if(stochActive) h+=`<th>Stoch يومي${cfg.stochTrig?' (زناد)':''}</th>`;
+  h+='<th>الإشارة</th><th>القوة</th>';
+  document.getElementById('tHead').innerHTML=h;
+}
 
-  document.getElementById('countNum').textContent=sorted.length;
-
-  let entryCount=0, partialCount=0, bearCount=0;
-  const tbody=document.getElementById('resultsBody');
-
+function renderTable(data,cfg){
+  cfg=cfg||lastResults[0]?._cfg||getSettings();
+  const sorted=[...data].sort((a,b)=>{
+    if(currentSort==='chg') return Math.abs(b.chg)-Math.abs(a.chg);
+    if(currentSort==='sym') return a.sym.localeCompare(b.sym);
+    return b.score-a.score;
+  });
+  document.getElementById('resCount').textContent=sorted.length;
   if(!sorted.length){
-    tbody.innerHTML=`<tr><td colspan="20"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-t">لا توجد نتائج</div><div class="empty-s">عدّل الإعدادات أو فعّل مؤشراً</div></div></td></tr>`;
-    updateStats(0,0,0);return;
+    document.getElementById('tBody').innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text3)">لا توجد أسهم مطابقة للشروط</td></tr>';
+    document.getElementById('statsRow').textContent='';
+    return;
   }
+  const dmaActive=cfg?.dmaOn&&cfg?.dmaTFs?.length>0;
+  const stochActive=cfg?.stochOn&&cfg?.stochTFs?.length>0;
+  let crossCount=0;
+  document.getElementById('tBody').innerHTML=sorted.map(s=>{
+    const pc=s.chg>0?'up':s.chg<0?'dn':'neu';
+    const cs=s.chg>0?'+':'';
+    const hasCross=(s.dmaD?.isCross||s.stochD?.isCross);
+    if(hasCross) crossCount++;
+    const color=s.score>=80?'var(--green)':s.score>=60?'var(--gold)':'var(--text3)';
 
-  tbody.innerHTML=sorted.map(s=>{
-    const pc=s.chg>=0?'up':'dn';
-    const cs=s.chg>=0?'+':'';
+    let dmaCol='',stochCol='';
+    if(dmaActive&&s.dmaD){
+      const c=s.dmaD.isCross,p=s.dmaD.isPos;
+      dmaCol=`<td><span class="sig ${c?'sig-trig':'sig-pos'}">${c?'⚡ تقاطع':'✓ إيجابي'} <small style="opacity:.7">${s.dmaD.curDif.toFixed(2)}</small></span></td>`;
+    } else if(dmaActive) dmaCol='<td>—</td>';
 
-    // DMA columns
-    let dmaCols='';
-    if(s._dmaOn) s._dmaTFs.forEach((tf,idx)=>{
-      const sig=s.dmaSigs[tf];
-      const isTrigger=idx===s._dmaTFs.length-1;
-      let sigClass,sigLabel;
-      if(isTrigger){
-        if(sig.isCrossover){sigClass='sig-trig';sigLabel='⚡ تقاطع ↑';}
-        else if(sig.isPositive){sigClass='sig-cond';sigLabel='✓ إيجابي';}
-        else if(sig.isBearish){sigClass='sig-bear';sigLabel='▼ هابط';}
-        else{sigClass='sig-neu';sigLabel='— محايد';}
-      } else {
-        if(sig.isPositive){sigClass='sig-cond';sigLabel='✓ شرط OK';}
-        else if(sig.isBearish){sigClass='sig-bear';sigLabel='✗ هابط';}
-        else{sigClass='sig-neu';sigLabel='— محايد';}
-      }
-      const smaEnabled=s._dmaSMAPerTF[tf];
-      const aboveSMA=s.dmaAboveSMAPerTF[tf];
-      const smaBadge=smaEnabled?`<span style="font-size:9px;margin-right:3px;font-family:var(--mono);color:${aboveSMA?'var(--green)':'var(--red)'}">${aboveSMA?'▲SMA':'▼SMA'}</span>`:'';
-      dmaCols+=`<td>${smaBadge}<span class="sig ${sigClass}">${sigLabel}</span></td>`;
-    });
+    if(stochActive&&s.stochD){
+      const c=s.stochD.isCross;
+      stochCol=`<td><span class="sig ${c?'sig-trig':'sig-pos'}">${c?'⚡':'✓'} K=${s.stochD.curK.toFixed(1)}</span></td>`;
+    } else if(stochActive) stochCol='<td>—</td>';
 
-    // Stoch columns
-    let stochCols='';
-    if(s._stochOn) s._stochTFs.forEach((tf,idx)=>{
-      const sig=s.stochSigs[tf];
-      const isTrigger=idx===s._stochTFs.length-1;
-      let sigClass,sigLabel;
-      if(isTrigger){
-        if(sig.isCrossover){
-          // تحقق من cross threshold للزناد
-          const crossCfg=s._crossPerTF?.[tf];
-          if(crossCfg?.enabled){
-            sigClass='sig-cross';
-            sigLabel=`⚡ تقاطع @ ${sig.curK.toFixed(0)}`;
-          } else {
-            sigClass='sig-trig';sigLabel=`⚡ تقاطع @ ${sig.curK.toFixed(0)}`;
-          }
-        } else if(sig.isPositive){sigClass='sig-cond';sigLabel=`K=${sig.curK.toFixed(0)}`;}
-        else if(sig.isBearish){sigClass='sig-bear';sigLabel='▼ هابط';}
-        else{sigClass='sig-neu';sigLabel='— محايد';}
-      } else {
-        if(sig.isPositive){sigClass='sig-cond';sigLabel=`✓ K>${sig.curD.toFixed(0)}`;}
-        else if(sig.isBearish){sigClass='sig-bear';sigLabel='✗ هابط';}
-        else{sigClass='sig-neu';sigLabel='— محايد';}
-      }
-      const smaEnabled=s._stochSMAPerTF[tf];
-      const aboveSMA=s.stochAboveSMAPerTF[tf];
-      const smaBadge=smaEnabled?`<span style="font-size:9px;margin-right:3px;font-family:var(--mono);color:${aboveSMA?'var(--green)':'var(--red)'}">${aboveSMA?'▲SMA':'▼SMA'}</span>`:'';
-      stochCols+=`<td>${smaBadge}<span class="sig ${sigClass}">${sigLabel}</span></td>`;
-    });
-
-    // Overall signal — يعكس الزناد المفعّل
-    const dmaActive=s._dmaOn && s._dmaTFs.length>0;
-    const stochActive=s._stochOn && s._stochTFs.length>0;
-    const dmaTrigTF=dmaActive?(getTrigTF('dma')&&s._dmaTFs.includes(getTrigTF('dma'))?getTrigTF('dma'):s._dmaTFs[s._dmaTFs.length-1]):null;
-    const stochTrigTF=stochActive?(getTrigTF('stoch')&&s._stochTFs.includes(getTrigTF('stoch'))?getTrigTF('stoch'):s._stochTFs[s._stochTFs.length-1]):null;
-    const dmaCross=dmaTrigTF&&s.dmaSigs[dmaTrigTF]?.isCrossover;
-    const stochCross=stochTrigTF&&s.stochSigs[stochTrigTF]?.isCrossover;
-
-    let overallSig,overallClass;
-    if(dmaCross&&stochCross){overallSig='🚀 تقاطع مزدوج';overallClass='sig-trig';}
-    else if(dmaCross){overallSig='⚡ DMA تقاطع';overallClass='sig-trig';}
-    else if(stochCross){overallSig='⚡ Stoch تقاطع';overallClass='sig-trig';}
-    else{overallSig='✓ إيجابي';overallClass='sig-cond';}
-    entryCount++;
-
-    const col=getColor(s.score);
+    const overall=hasCross?'<span class="sig sig-trig">⚡ تقاطع</span>':'<span class="sig sig-pos">✓ إيجابي</span>';
     return `<tr>
-      <td class="sym">${s.sym}</td>
-      <td class="co" title="${s.name}">${s.name}</td>
+      <td class="sym-cell">${s.sym}</td>
+      <td class="name-cell" title="${s.name}">${s.name}</td>
       <td><span class="sect-tag">${s.sectorAr}</span></td>
-      <td class="price ${pc}">${s.price.toFixed(2)}</td>
-      <td class="chg-cell ${pc}">${cs}${s.chg.toFixed(2)}%</td>
-      ${dmaCols}${stochCols}
-      <td><span class="sig ${overallClass}">${overallSig}</span></td>
-      <td><div class="score-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${s.score}%;background:${col}"></div></div><span class="score-num" style="color:${col}">${s.score}</span></div></td>
+      <td class="${pc}" style="font-weight:700">${s.price.toFixed(2)}</td>
+      <td class="${pc}">${cs}${s.chg.toFixed(2)}%</td>
+      ${dmaCol}${stochCol}
+      <td>${overall}</td>
+      <td><div class="score-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${s.score}%;background:${color}"></div></div><span style="font-size:11px;font-weight:700;color:${color}">${s.score}</span></div></td>
     </tr>`;
   }).join('');
-  updateStats(entryCount,partialCount,bearCount);
+  document.getElementById('statsRow').textContent=`إشارات دخول: ${crossCount} · شرط فقط: ${sorted.length-crossCount} · هالبة: 0 · إجمالي: ${sorted.length}`;
 }
 
-function updateStats(entry,partial,bear){
-  document.getElementById('stBull').textContent=`إشارات دخول: ${entry}`;
-  document.getElementById('stCond').textContent=`تقاطع مزدوج: ${partial}`;
-  document.getElementById('stBear').textContent=`إجمالي: ${entry+partial+bear}`;
-}
+// ══════════════════════════════════════════════════
+//  STRATEGIES
+// ══════════════════════════════════════════════════
+let strategies=[];
+let autoScanTimer=null;
 
-// ══════════════════════════════════════════════
-//  STRATEGY — محفوظة على السيرفر (Upstash KV)
-// ══════════════════════════════════════════════
-let strategies = [];
-
-function getSMAForTF(ind,tf){ return document.getElementById(`${ind}SMA_${tf}`)?.checked||false; }
-
-function getSnap(){
-  const dmaTFs=getSelTFs('dma');
-  const stochTFs=getSelTFs('stoch');
-  const dmaSMAPerTF={};
-  dmaTFs.forEach(tf=>dmaSMAPerTF[tf]=getSMAForTF('dma',tf));
-  const stochSMAPerTF={};
-  stochTFs.forEach(tf=>stochSMAPerTF[tf]=getSMAForTF('stoch',tf));
-  const dmaZeroPerTF={};
-  dmaTFs.forEach(tf=>dmaZeroPerTF[tf]=document.getElementById(`dmaZero_${tf}`)?.checked||false);
-  return{
-    dmaOn:document.getElementById('dmaOn').checked,
-    stochOn:document.getElementById('stochOn').checked,
-    dmaTFs,stochTFs,
-    dmaSMAPerTF,stochSMAPerTF,
-    dmaZeroPerTF,
-    crossPerTF:getCrossPerTF(),
-    stochK:parseInt(document.getElementById('stochK').value)||5,
-    stochD:parseInt(document.getElementById('stochD').value)||3,
-    stochS:parseInt(document.getElementById('stochS').value)||3,
-  };
-}
-function applySnap(snap){
-  document.getElementById('dmaOn').checked=snap.dmaOn;
-  document.getElementById('stochOn').checked=snap.stochOn;
-  syncCard('dma');syncCard('stoch');
-  ['dma','stoch'].forEach(ind=>{
-    const tfs=ind==='dma'?snap.dmaTFs:snap.stochTFs;
-    const smaPerTF=ind==='dma'?snap.dmaSMAPerTF:snap.stochSMAPerTF;
-    document.querySelectorAll(`.tf-chip[data-ind="${ind}"]`).forEach(c=>{
-      const isSel=tfs?.includes(c.dataset.tf);
-      const tf=c.dataset.tf;
-      c.classList.toggle('sel',isSel);
-      const smaDiv=document.getElementById(`${ind}-sma-${tf}`);
-      if(smaDiv) smaDiv.classList.toggle('tf-sma-inactive',!isSel);
-      const smaCb=document.getElementById(`${ind}SMA_${tf}`);
-      if(smaCb) smaCb.checked=(isSel&&smaPerTF)?smaPerTF[tf]||false:false;
-      if(ind==='dma'){
-        const zeroDiv=document.getElementById(`dma-zero-${tf}`);
-        if(zeroDiv) zeroDiv.classList.toggle('tf-sma-inactive',!isSel);
-        const zeroCb=document.getElementById(`dmaZero_${tf}`);
-        if(zeroCb) zeroCb.checked=isSel?(snap.dmaZeroPerTF?.[tf]||false):false;
-      }
-      if(ind==='stoch'){
-        const crossRow=document.getElementById(`stoch-cross-${tf}`);
-        if(crossRow) crossRow.classList.toggle('tf-sma-inactive',!isSel);
-      }
-    });
-  });
-  // restore cross per-TF
-  if(snap.crossPerTF){
-    ['M','W','D'].forEach(tf=>{
-      const cfg=snap.crossPerTF[tf];
-      if(!cfg) return;
-      const cb=document.getElementById(`crossEnabled_${tf}`);
-      const val=document.getElementById(`crossVal_${tf}`);
-      if(cb) cb.checked=cfg.enabled;
-      if(val) val.value=cfg.val;
-      syncCrossTF(tf);
-    });
-  }
-  if(snap.stochK){document.getElementById('stochK').value=snap.stochK;}
-  if(snap.stochD){document.getElementById('stochD').value=snap.stochD;}
-  if(snap.stochS){document.getElementById('stochS').value=snap.stochS;}
-  updateStochBadge();updateMTFHint();
-}
 async function saveStrategy(){
   const name=document.getElementById('stratName').value.trim();
-  if(!name){toast('اكتب اسماً للاستراتيجية','error');return;}
+  if(!name){toast('اكتب اسماً للاستراتيجية','err');return;}
   const email=document.getElementById('stratEmail').value.trim();
-  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    toast('الإيميل مطلوب لتفعيل الفحص التلقائي','error');return;
-  }
-  const snap=getSnap();
-  snap.name=name;
-  snap.alertEmail=email;
-  snap.date=new Date().toLocaleDateString('ar-SA');
-  snap.active=true;
+  const snap=getSettings();
+  const strat={id:Date.now().toString(),name,email,snap,active:true,date:new Date().toLocaleDateString('ar-SA')};
   try{
-    const res=await fetch('/api/strategies',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(snap),
-    });
-    const data=await res.json();
-    if(!res.ok) throw new Error(data.error||'فشل الحفظ');
+    const res=await fetch('/api/strategies',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(strat)});
+    const d=await res.json();
+    strategies=d.strategies||[];
+    renderStrategies();
+    startAutoScan();
+    toast('✅ تم الحفظ وبدأ الفحص التلقائي','ok');
     document.getElementById('stratName').value='';
-    document.getElementById('stratEmail').value='';
-    await loadStrategiesFromServer();
-    toast(`✅ تم حفظ "${name}" — فحص تلقائي مفعّل`);
-  }catch(e){toast(`❌ ${e.message}`,'error');}
-}
-
-function loadStrategy(id){
-  const s=strategies.find(x=>x.id===id);
-  if(s){applySnap(s);toast(`📂 تم تحميل "${s.name}"`);}
+  }catch(e){toast('فشل الحفظ','err');}
 }
 
 async function deleteStrategy(id){
-  const s=strategies.find(x=>x.id===id);
-  if(!confirm(`حذف "${s?.name}"؟`)) return;
   try{
-    const res=await fetch(`/api/strategies?id=${id}`,{method:'DELETE'});
-    if(!res.ok) throw new Error('فشل الحذف');
-    await loadStrategiesFromServer();
-    toast(`🗑 حُذفت "${s?.name}"`, 'error');
-  }catch(e){toast(`❌ ${e.message}`,'error');}
+    const res=await fetch('/api/strategies',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+    const d=await res.json();
+    strategies=d.strategies||[];
+    renderStrategies();
+    if(!strategies.length) stopAutoScan();
+    toast('تم الحذف','ok');
+  }catch(e){toast('فشل الحذف','err');}
 }
 
-async function loadStrategiesFromServer(){
+async function loadStrategies(){
   try{
-    const res=await fetch('/api/strategies');
-    const data=await res.json();
-    strategies=data.strategies||[];
-  }catch(e){
-    strategies=[];
-  }
-  renderStrats();
+    const d=await fetch('/api/strategies').then(r=>r.json());
+    strategies=d.strategies||[];
+    renderStrategies();
+    if(strategies.length) startAutoScan();
+  }catch(e){}
 }
 
-function renderStrats(){
-  const list=document.getElementById('stratList');
-  const TF_AR={M:'شهري',W:'أسبوعي',D:'يومي'};
-  document.getElementById('stratCountLbl').textContent=strategies.length?`${strategies.length} نشطة — فحص تلقائي كل 5 دقائق`:'';
+function renderStrategies(){
+  const el=document.getElementById('stratList');
   if(!strategies.length){
-    list.innerHTML='<span class="no-strat">لا توجد استراتيجيات — احفظ استراتيجية لبدء الفحص التلقائي</span>';
+    el.innerHTML='<span class="no-strat">لا توجد استراتيجيات محفوظة — احفظ استراتيجية لبدء الفحص التلقائي كل 5 دقائق</span>';
     return;
   }
-  list.innerHTML=strategies.map(s=>{
-    const dmaPart=s.dmaOn&&s.dmaTFs?.length>0?`DMA(${s.dmaTFs.map(t=>TF_AR[t]||t).join('→')})`:null;
-    const stochPart=s.stochOn&&s.stochTFs?.length>0?`Stoch(${s.stochTFs.map(t=>TF_AR[t]||t).join('→')}) ${s.stochK||5}/${s.stochD||3}/${s.stochS||3}`:null;
-    const meta=[dmaPart,stochPart].filter(Boolean).join(' · ')||'—';
-    return `<div class="strat-item">
-      <div>
-        <div class="strat-name">${s.name} <span style="font-size:10px;color:var(--green)">● نشطة</span></div>
-        <div class="strat-meta">${s.date||''} · ${meta}</div>
-        <div class="strat-email-badge">📧 ${s.alertEmail}</div>
-      </div>
-      <div style="display:flex;gap:6px;margin-right:6px">
-        <button class="strat-load-btn" onclick="loadStrategy('${s.id}')">تحميل</button>
-        <button class="strat-del-btn" onclick="deleteStrategy('${s.id}')">✕</button>
-      </div>
-    </div>`;
-  }).join('');
+  el.innerHTML=strategies.map(s=>`
+    <div class="strat-item">
+      <span class="strat-name">${s.name}</span>
+      <span class="strat-meta">${s.date||''}</span>
+      ${s.email?`<span class="strat-meta">📧 ${s.email}</span>`:''}
+      <span class="strat-active-badge">🟢 تلقائي</span>
+      <button class="mini-btn" onclick='applySnap(${JSON.stringify(s.snap)})'>تطبيق</button>
+      <button class="mini-btn" onclick="runWithSnap('${s.id}')">فحص</button>
+      <button class="mini-btn del" onclick="deleteStrategy('${s.id}')">حذف</button>
+    </div>
+  `).join('');
 }
 
-// ══════════════════════════════════════════════
-//  EMAIL — AUTO SEND ON RESULTS
-// ══════════════════════════════════════════════
-let ejsCfg=JSON.parse(localStorage.getItem('sar_ejs')||'{}');
-
-function loadEJSDisp(){
-  document.getElementById('dispSID').textContent=ejsCfg.sid||'—';
-  if(document.getElementById('ejsPK')) document.getElementById('ejsPK').value=ejsCfg.pk||'';
-  if(document.getElementById('ejsSID')) document.getElementById('ejsSID').value=ejsCfg.sid||'';
-  if(document.getElementById('ejsTID')) document.getElementById('ejsTID').value=ejsCfg.tid||'';
-}
-function toggleEJSBox(){
-  const b=document.getElementById('ejsBox');
-  b.style.display=b.style.display==='none'?'flex':'none';
-  loadEJSDisp();
-}
-function saveEJS(){
-  ejsCfg={
-    pk:document.getElementById('ejsPK').value.trim(),
-    sid:document.getElementById('ejsSID').value.trim(),
-    tid:document.getElementById('ejsTID').value.trim()
-  };
-  localStorage.setItem('sar_ejs',JSON.stringify(ejsCfg));
-  loadEJSDisp();
-  toast('✅ تم حفظ إعدادات EmailJS');
-}
-
-function loadEmailJSLib(){
-  return new Promise((resolve,reject)=>{
-    if(window.emailjs){resolve();return;}
-    const s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
-    s.onload=resolve;
-    s.onerror=()=>reject(new Error('فشل تحميل EmailJS'));
-    document.head.appendChild(s);
-  });
-}
-
-// Called automatically after scan finishes — sends alert for each strategy that has an email
-async function autoSendAlerts(results){
-  // Only proceed if we have EmailJS config and there are results
-  if(!ejsCfg.pk||!ejsCfg.sid||!ejsCfg.tid) return;
-  if(!results.length) return;
-
-  // Find all active strategies that have an email set
-  const alertStrats=strategies.filter(s=>s.alertEmail&&s.alertEmail.trim());
-  if(!alertStrats.length) return;
-
-  try{
-    await loadEmailJSLib();
-    window.emailjs.init({publicKey:ejsCfg.pk});
-  }catch(e){return;}
-
-  const now=new Date();
-  const timeStr=now.toLocaleTimeString('ar-SA');
-  const dateStr=now.toLocaleDateString('ar-SA');
-
-  // Build concise stock list: رمز + اسم + وقت
-  const stockLines=results.map(s=>`${s.sym} — ${s.name} — ${s.price.toFixed(2)} ر.س`).join('\n');
-
-  for(const strat of alertStrats){
-    try{
-      await window.emailjs.send(ejsCfg.sid, ejsCfg.tid,{
-        to_email: strat.alertEmail,
-        strategy_name: strat.name,
-        scan_time: timeStr,
-        scan_date: dateStr,
-        total_signals: results.length,
-        stocks_list: stockLines,
-        // Kept for template compatibility
-        results_table: stockLines,
-        entry_signals: results.length,
-        total_results: results.length,
-        indicators:'',schedule:'تلقائي',trigger_mode:'',
-      });
-      toast(`📧 تنبيه أُرسل إلى ${strat.alertEmail}`,'info');
-    }catch(err){
-      toast(`❌ فشل إرسال تنبيه "${strat.name}"`, 'error');
-    }
-  }
-}
-
-// ══════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════
-syncCard('dma');syncCard('stoch');
-syncCrossUI();updateMTFHint();
-loadStrategiesFromServer(); // جلب الاستراتيجيات من السيرفر
-loadEJSDisp();
-// Sync SMA + DIF>0 + cross toggle visibility
-['dma','stoch'].forEach(ind=>{
-  document.querySelectorAll(`.tf-chip[data-ind="${ind}"]`).forEach(c=>{
-    const isSel=c.classList.contains('sel');
-    const tf=c.dataset.tf;
-    const smaDiv=document.getElementById(`${ind}-sma-${tf}`);
-    if(smaDiv) smaDiv.classList.toggle('tf-sma-inactive',!isSel);
-    if(ind==='dma'){
-      const zeroDiv=document.getElementById(`dma-zero-${tf}`);
-      if(zeroDiv) zeroDiv.classList.toggle('tf-sma-inactive',!isSel);
-    }
-    if(ind==='stoch'){
-      const crossRow=document.getElementById(`stoch-cross-${tf}`);
-      if(crossRow) crossRow.classList.toggle('tf-sma-inactive',!isSel);
+function applySnap(snap){
+  // DMA
+  document.getElementById('dmaOn').checked=snap.dmaOn;
+  syncCard('dma');
+  ['M','W','D'].forEach(tf=>{
+    const on=snap.dmaTFs?.includes(tf);
+    const btn=document.getElementById(`dma-${tf}`);
+    const ex=document.getElementById(`dma-${tf}-ex`);
+    btn?.classList.toggle('on',!!on);
+    ex?.classList.toggle('hidden',!on);
+    if(on&&snap.dmaEx?.[tf]){
+      document.getElementById(`dma-${tf}-sma`)?.classList.toggle('on',!!snap.dmaEx[tf].sma);
+      document.getElementById(`dma-${tf}-zero`)?.classList.toggle('on',!!snap.dmaEx[tf].zero);
     }
   });
-});
+  document.getElementById('dma-D-trig')?.classList.toggle('on',!!snap.dmaTrig);
+
+  // Stoch
+  document.getElementById('stochOn').checked=snap.stochOn;
+  syncCard('stoch');
+  ['M','W','D'].forEach(tf=>{
+    const on=snap.stochTFs?.includes(tf);
+    const btn=document.getElementById(`stoch-${tf}`);
+    const ex=document.getElementById(`stoch-${tf}-ex`);
+    btn?.classList.toggle('on',!!on);
+    ex?.classList.toggle('hidden',!on);
+    if(on&&snap.stochEx?.[tf]){
+      document.getElementById(`stoch-${tf}-sma`)?.classList.toggle('on',!!snap.stochEx[tf].sma);
+      document.getElementById(`stoch-${tf}-cross`)?.classList.toggle('on',!!snap.stochEx[tf].cross);
+      const cv=document.getElementById(`stoch-${tf}-cv`);
+      if(cv&&snap.stochEx[tf].cv) cv.value=snap.stochEx[tf].cv;
+    }
+  });
+  document.getElementById('stoch-D-trig')?.classList.toggle('on',!!snap.stochTrig);
+  if(snap.stochK) document.getElementById('stochK').value=snap.stochK;
+  if(snap.stochD) document.getElementById('stochD').value=snap.stochD;
+  if(snap.stochS) document.getElementById('stochS').value=snap.stochS;
+  updateStochBadge();
+  toast('✅ تم تطبيق الاستراتيجية');
+}
+
+async function runWithSnap(id){
+  const strat=strategies.find(s=>s.id===id);
+  if(!strat) return;
+  applySnap(strat.snap);
+  await runScan(strat.snap);
+}
+
+// ── AUTO SCAN ──
+function startAutoScan(){
+  stopAutoScan();
+  autoScanTimer=setInterval(()=>{
+    if(!marketOpen()) return; // فقط أثناء السوق
+    strategies.forEach(s=>runScan(s.snap,true));
+  },5*60*1000); // كل 5 دقائق
+}
+function stopAutoScan(){
+  if(autoScanTimer) clearInterval(autoScanTimer);
+  autoScanTimer=null;
+}
+
+// تحميل الاستراتيجيات
+loadStrategies();
 </script>
 </body>
 </html>
