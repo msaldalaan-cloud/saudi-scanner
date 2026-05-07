@@ -1,8 +1,17 @@
 {
-  "functions": {
-    "api/*.js": { "memory": 512, "maxDuration": 30 }
-  },
+  "version": 2,
   "crons": [
-    { "path": "/api/cron", "schedule": "*/5 * * * *" }
-  ]
+    {
+      "path": "/api/cron",
+      "schedule": "55,0,5,10,15,20,25,30,35,40,45,50 6-12 * * 0-4"
+    }
+  ],
+  "functions": {
+    "api/cron.js": {
+      "maxDuration": 300
+    },
+    "api/sahmk.js": {
+      "maxDuration": 30
+    }
+  }
 }
