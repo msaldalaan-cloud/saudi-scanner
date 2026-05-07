@@ -290,17 +290,6 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
   <div class="panel">
     <div class="panel-title">إعدادات المؤشرات</div>
 
-    <!-- ── TRIGGER SELECTOR ── -->
-    <div class="trigger-bar">
-      <div class="trigger-label">🎯 زناد الدخول النهائي</div>
-      <div class="trigger-pills">
-        <button class="trig-pill" id="trigDMA"  onclick="setTrigger('dma')">DMA فقط</button>
-        <button class="trig-pill" id="trigStoch" onclick="setTrigger('stoch')">Stoch فقط</button>
-        <button class="trig-pill sel" id="trigBoth"  onclick="setTrigger('both')">الاثنين معاً</button>
-      </div>
-      <div class="trigger-desc" id="trigDesc">كلا المؤشرين لازم يتقاطعان في نفس الوقت</div>
-    </div>
-
     <div class="indicators-grid">
 
       <!-- DMA Card -->
@@ -342,6 +331,13 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
                 <div class="toggle-track"></div><div class="toggle-thumb"></div>
               </label>
             </div>
+            <div class="tf-sma-inline tf-sma-inactive" id="dma-trig-M">
+              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
+              <label class="toggle toggle-sm">
+                <input type="checkbox" id="dmaTrig_M" onchange="syncTrigTF('dma','M')">
+                <div class="toggle-track"></div><div class="toggle-thumb"></div>
+              </label>
+            </div>
           </div>
 
           <!-- أسبوعي -->
@@ -361,6 +357,13 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
                 <div class="toggle-track"></div><div class="toggle-thumb"></div>
               </label>
             </div>
+            <div class="tf-sma-inline" id="dma-trig-W">
+              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
+              <label class="toggle toggle-sm">
+                <input type="checkbox" id="dmaTrig_W" onchange="syncTrigTF('dma','W')">
+                <div class="toggle-track"></div><div class="toggle-thumb"></div>
+              </label>
+            </div>
           </div>
 
           <!-- يومي -->
@@ -377,6 +380,13 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
               <span class="sma-tag-inline" style="color:var(--orange);background:var(--orange-dim);border-color:rgba(249,115,22,.2)">DIF > 0</span>
               <label class="toggle toggle-sm">
                 <input type="checkbox" id="dmaZero_D">
+                <div class="toggle-track"></div><div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="tf-sma-inline tf-sma-inactive" id="dma-trig-D">
+              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
+              <label class="toggle toggle-sm">
+                <input type="checkbox" id="dmaTrig_D" onchange="syncTrigTF('dma','D')">
                 <div class="toggle-track"></div><div class="toggle-thumb"></div>
               </label>
             </div>
@@ -424,6 +434,13 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
                 <div class="toggle-track"></div><div class="toggle-thumb"></div>
               </label>
             </div>
+            <div class="tf-sma-inline tf-sma-inactive" id="stoch-trig-M">
+              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
+              <label class="toggle toggle-sm">
+                <input type="checkbox" id="stochTrig_M" onchange="syncTrigTF('stoch','M')">
+                <div class="toggle-track"></div><div class="toggle-thumb"></div>
+              </label>
+            </div>
           </div>
 
           <!-- أسبوعي -->
@@ -443,6 +460,13 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
                 <div class="toggle-track"></div><div class="toggle-thumb"></div>
               </label>
             </div>
+            <div class="tf-sma-inline" id="stoch-trig-W">
+              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
+              <label class="toggle toggle-sm">
+                <input type="checkbox" id="stochTrig_W" onchange="syncTrigTF('stoch','W')">
+                <div class="toggle-track"></div><div class="toggle-thumb"></div>
+              </label>
+            </div>
           </div>
 
           <!-- يومي -->
@@ -459,6 +483,13 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
               <input type="number" class="cross-num-sm" id="crossVal_D" value="30" min="1" max="99" disabled>
               <label class="toggle toggle-sm">
                 <input type="checkbox" id="crossEnabled_D" onchange="syncCrossTF('D')">
+                <div class="toggle-track"></div><div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="tf-sma-inline" id="stoch-trig-D">
+              <span class="sma-tag-inline" style="color:var(--gold2);background:var(--gold-dim);border-color:rgba(212,168,67,.3)">زناد</span>
+              <label class="toggle toggle-sm">
+                <input type="checkbox" id="stochTrig_D" onchange="syncTrigTF('stoch','D')">
                 <div class="toggle-track"></div><div class="toggle-thumb"></div>
               </label>
             </div>
@@ -662,26 +693,6 @@ function toast(msg,type='success'){
 }
 
 // ══════════════════════════════════════════════
-//  TRIGGER MODE
-// ══════════════════════════════════════════════
-let triggerMode='both'; // 'dma' | 'stoch' | 'both'
-
-const TRIG_DESC={
-  dma:  'الزناد = تقاطع DMA فقط — Stoch يعمل كفلتر اتجاه',
-  stoch:'الزناد = تقاطع Stoch فقط — DMA يعمل كفلتر اتجاه',
-  both: 'كلا المؤشرين لازم يتقاطعان في نفس الوقت',
-};
-
-function setTrigger(mode){
-  triggerMode=mode;
-  document.querySelectorAll('.trig-pill').forEach(p=>p.classList.remove('sel'));
-  const idMap={dma:'trigDMA', stoch:'trigStoch', both:'trigBoth'};
-  const el=document.getElementById(idMap[mode]);
-  if(el) el.classList.add('sel');
-  document.getElementById('trigDesc').textContent=TRIG_DESC[mode];
-}
-
-// ══════════════════════════════════════════════
 //  UI CONTROLS
 // ══════════════════════════════════════════════
 function syncCard(ind){try{
@@ -695,6 +706,31 @@ function syncCrossTF(tf){try{
   const valEl=document.getElementById(`crossVal_${tf}`);
   if(valEl) valEl.disabled=!on;
 }catch(e){}}
+
+// زناد مخصص لكل إطار — يلغي الزناد النهائي العام
+function syncTrigTF(ind, tf){try{
+  const checked=document.getElementById(`${ind}Trig_${tf}`)?.checked;
+  // إذا شغّلناه نطفي باقي الزنادات لنفس المؤشر
+  if(checked){
+    ['M','W','D'].forEach(t=>{
+      if(t!==tf){
+        const el=document.getElementById(`${ind}Trig_${t}`);
+        if(el) el.checked=false;
+      }
+    });
+  }
+  updateMTFHint();
+}catch(e){}}
+
+// جلب الإطار المحدد كزناد لكل مؤشر
+function getTrigTF(ind){
+  for(const tf of ['M','W','D']){
+    const el=document.getElementById(`${ind}Trig_${tf}`);
+    if(el?.checked) return tf;
+  }
+  return null; // لا يوجد زناد مخصص → يستخدم الزناد النهائي العام
+}
+
 function getCrossPerTF(){
   const result={};
   ['M','W','D'].forEach(tf=>{
@@ -738,6 +774,15 @@ function toggleTF(btn){try{
       const crossCb=document.getElementById(`crossEnabled_${tf}`);
       if(crossCb) crossCb.checked=false;
       syncCrossTF(tf);
+    }
+  }
+  // زناد مخصص
+  const trigDiv=document.getElementById(`${ind}-trig-${tf}`);
+  if(trigDiv){
+    trigDiv.classList.toggle('tf-sma-inactive',!isNowSelected);
+    if(!isNowSelected){
+      const trigCb=document.getElementById(`${ind}Trig_${tf}`);
+      if(trigCb) trigCb.checked=false;
     }
   }
 }catch(e){}}
@@ -796,129 +841,107 @@ async function apiFetch(path, params={}){
   return res.json();
 }
 
+// ── بناء شمعات أسبوعية/شهرية من بيانات يومية ──
+function buildCandles(dailyCandles, tf){
+  const sorted=[...dailyCandles].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if(tf==='D') return sorted;
+  const groups={};
+  for(const c of sorted){
+    const d=new Date(c.date);
+    let key;
+    if(tf==='W'){
+      // مفتاح الأسبوع: السنة + رقم الأسبوع (الأحد = بداية الأسبوع)
+      const day=d.getDay(); // 0=Sun
+      const weekStart=new Date(d);
+      weekStart.setDate(d.getDate()-day);
+      const y=weekStart.getFullYear();
+      const m=String(weekStart.getMonth()+1).padStart(2,'0');
+      const dd=String(weekStart.getDate()).padStart(2,'0');
+      key=`${y}-${m}-${dd}`;
+    } else {
+      // شهري: السنة-الشهر
+      key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    }
+    if(!groups[key]) groups[key]=[];
+    groups[key].push(c);
+  }
+  return Object.entries(groups).sort(([a],[b])=>a.localeCompare(b)).map(([key,candles])=>({
+    date: tf==='W' ? key : key+'-01',
+    open:  candles[0].open,
+    high:  Math.max(...candles.map(c=>parseFloat(c.high))),
+    low:   Math.min(...candles.map(c=>parseFloat(c.low))),
+    close: candles[candles.length-1].close,
+    volume: candles.reduce((s,c)=>s+parseFloat(c.volume||0),0),
+  }));
+}
+
 async function fetchStockTF(sym, tf){
-  const periodMap={D:'daily',W:'weekly',M:'monthly'};
-  const period=periodMap[tf];
-  // استخدام تاريخ الرياض بدل UTC
+  // دائماً نجلب 7 سنوات من البيانات اليومية (كافية لكل الإطارات)
   const nowRiyadh=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-  const toStr=nowRiyadh.toISOString().split('T')[0];
+  const ry=nowRiyadh.getFullYear(),rm=String(nowRiyadh.getMonth()+1).padStart(2,'0'),rd=String(nowRiyadh.getDate()).padStart(2,'0');
+  const toStr=`${ry}-${rm}-${rd}`;
   const from=new Date(nowRiyadh);
-  if(period==='daily')   from.setFullYear(from.getFullYear()-2);
-  else if(period==='weekly')  from.setFullYear(from.getFullYear()-7);
-  else if(period==='monthly') from.setFullYear(from.getFullYear()-25);
+  from.setFullYear(from.getFullYear()-7); // 7 سنوات كافية لكل الإطارات
+  const fy=from.getFullYear(),fm=String(from.getMonth()+1).padStart(2,'0'),fd=String(from.getDate()).padStart(2,'0');
   const data=await apiFetch(`historical/${sym}`,{
-    period,
-    from:from.toISOString().split('T')[0],
+    period:'daily',
+    from:`${fy}-${fm}-${fd}`,
     to:toStr,
   });
-  const candles=data?.data||data?.results||data?.candles||[];
-  if(candles.length<60) return null;
-  // استبعاد الجمعة (5) والسبت (6) من البيانات
-  const filtered=candles.filter(c=>{
-    const d=new Date(c.date); return d.getDay()!==5 && d.getDay()!==6;
-  });
-  if(filtered.length<60) return null;
-  const sorted=[...filtered].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const rawCandles=data?.data||data?.results||data?.candles||[];
+  // استبعاد الجمعة والسبت
+  const dailyFiltered=rawCandles.filter(c=>{
+    const d=new Date(c.date); return d.getDay()!==5&&d.getDay()!==6;
+  }).sort((a,b)=>new Date(a.date)-new Date(b.date));
 
-  // ── تحقق إن البيانات محدّثة لآخر يوم تداول ──
-  if(period==='daily'){
-    const lastCandleDate=sorted[sorted.length-1]?.date?.split('T')[0];
-    const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-    const timeMin=nowR.getHours()*60+nowR.getMinutes();
-    const isMarketOpen=nowR.getDay()>=0&&nowR.getDay()<=4&&timeMin>=595&&timeMin<=935;
-    let lastTrading=new Date(nowR);
-    if(!isMarketOpen){
+  if(dailyFiltered.length<60) return null;
+
+  // ── تحقق إن البيانات اليومية محدّثة ──
+  const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
+  const timeMin=nowR.getHours()*60+nowR.getMinutes();
+  const isMarketOpen=nowR.getDay()>=0&&nowR.getDay()<=4&&timeMin>=600&&timeMin<=930;
+  const lastDailyDate=dailyFiltered[dailyFiltered.length-1]?.date?.split('T')[0];
+
+  // حساب آخر يوم تداول
+  let lastTrading=new Date(nowR);
+  if(!isMarketOpen){
+    lastTrading.setDate(lastTrading.getDate()-1);
+    while(lastTrading.getDay()===5||lastTrading.getDay()===6)
       lastTrading.setDate(lastTrading.getDate()-1);
-      while(lastTrading.getDay()===5||lastTrading.getDay()===6){
-        lastTrading.setDate(lastTrading.getDate()-1);
-      }
-    } else {
-      while(lastTrading.getDay()===5||lastTrading.getDay()===6){
-        lastTrading.setDate(lastTrading.getDate()-1);
-      }
-    }
-    // استخدم تاريخ الرياض مباشرة (YYYY-MM-DD)
-    const y=lastTrading.getFullYear();
-    const m=String(lastTrading.getMonth()+1).padStart(2,'0');
-    const d=String(lastTrading.getDate()).padStart(2,'0');
-    const lastTradingStr=`${y}-${m}-${d}`;
-    if(lastCandleDate!==lastTradingStr) return null;
+  } else {
+    while(lastTrading.getDay()===5||lastTrading.getDay()===6)
+      lastTrading.setDate(lastTrading.getDate()-1);
+  }
+  const lty=lastTrading.getFullYear(),ltm=String(lastTrading.getMonth()+1).padStart(2,'0'),ltd=String(lastTrading.getDate()).padStart(2,'0');
+  const lastTradingStr=`${lty}-${ltm}-${ltd}`;
+  if(lastDailyDate!==lastTradingStr){
+    // نسمح بفارق حتى 3 أيام تداول (بعض الأسهم قليلة السيولة)
+    const daysDiff=(new Date(lastTradingStr)-new Date(lastDailyDate))/(1000*60*60*24);
+    if(daysDiff>7) return null;
   }
 
-  // ── شمعة اليوم الحية لكل الإطارات ──
-  // فقط أثناء ساعات السوق (الأحد-الخميس 9:55-15:35 بتوقيت الرياض)
-  try{
-    const nowRiyadh=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-    const dayOfWeek=nowRiyadh.getDay(); // 0=Sun, 4=Thu
-    const timeMin=nowRiyadh.getHours()*60+nowRiyadh.getMinutes();
-    const isMarketOpen=dayOfWeek>=0&&dayOfWeek<=4&&timeMin>=595&&timeMin<=935;
-
-    const quote=await apiFetch(`quote/${sym}`);
-    if(quote?.price && isMarketOpen){
-      const livePrice=parseFloat(quote.price);
-      const liveHigh= parseFloat(quote.high||quote.price);
-      const liveLow=  parseFloat(quote.low||quote.price);
-      const liveOpen= parseFloat(quote.open||quote.price);
-      const today=new Date();
-      const todayStr=today.toISOString().split('T')[0];
-
-      if(tf==='D'){
-        // اليومي: أضف أو حدّث شمعة اليوم
-        const lastDate=(sorted[sorted.length-1]?.date||'').split('T')[0];
-        const live={date:todayStr,open:liveOpen,high:liveHigh,low:liveLow,close:livePrice};
-        if(lastDate===todayStr) sorted[sorted.length-1]=live;
-        else sorted.push(live);
-
-      } else if(tf==='W'){
-        // الأسبوعي: ابنِ شمعة الأسبوع الحالي
-        // أول يوم في الأسبوع الحالي (الأحد)
-        const dayOfWeek=today.getDay(); // 0=Sun
-        const weekStart=new Date(today);
-        weekStart.setDate(today.getDate()-dayOfWeek);
-        const weekStartStr=weekStart.toISOString().split('T')[0];
-
-        const lastDate=(sorted[sorted.length-1]?.date||'').split('T')[0];
-        // جلب شمعات هذا الأسبوع من اليومي لحساب high/low حقيقي
-        const weeklyData=await apiFetch(`historical/${sym}`,{
-          period:'daily',
-          from:weekStartStr,
-          to:todayStr,
-        });
-        const weekCandles=weeklyData?.data||weeklyData?.results||[];
-        let wHigh=liveHigh, wLow=liveLow, wOpen=liveOpen;
-        if(weekCandles.length>0){
-          wHigh=Math.max(...weekCandles.map(c=>parseFloat(c.high)), liveHigh);
-          wLow= Math.min(...weekCandles.map(c=>parseFloat(c.low)),  liveLow);
-          wOpen=parseFloat(weekCandles[0].open);
-        }
-        const liveWeek={date:weekStartStr,open:wOpen,high:wHigh,low:wLow,close:livePrice};
-        if(lastDate>=weekStartStr) sorted[sorted.length-1]=liveWeek;
-        else sorted.push(liveWeek);
-
-      } else if(tf==='M'){
-        // الشهري: ابنِ شمعة الشهر الحالي
-        const monthStart=new Date(today.getFullYear(),today.getMonth(),1);
-        const monthStartStr=monthStart.toISOString().split('T')[0];
-
-        const lastDate=(sorted[sorted.length-1]?.date||'').split('T')[0];
-        const monthlyData=await apiFetch(`historical/${sym}`,{
-          period:'daily',
-          from:monthStartStr,
-          to:todayStr,
-        });
-        const monthCandles=monthlyData?.data||monthlyData?.results||[];
-        let mHigh=liveHigh, mLow=liveLow, mOpen=liveOpen;
-        if(monthCandles.length>0){
-          mHigh=Math.max(...monthCandles.map(c=>parseFloat(c.high)), liveHigh);
-          mLow= Math.min(...monthCandles.map(c=>parseFloat(c.low)),  liveLow);
-          mOpen=parseFloat(monthCandles[0].open);
-        }
-        const liveMonth={date:monthStartStr,open:mOpen,high:mHigh,low:mLow,close:livePrice};
-        if(lastDate>=monthStartStr) sorted[sorted.length-1]=liveMonth;
-        else sorted.push(liveMonth);
+  // ── إضافة الشمعة الحية لليومية قبل البناء (أثناء السوق فقط) ──
+  const workingDaily=[...dailyFiltered];
+  if(isMarketOpen){
+    try{
+      const quote=await apiFetch(`quote/${sym}`);
+      if(quote?.price){
+        const lp=parseFloat(quote.price),lh=parseFloat(quote.high||quote.price);
+        const ll=parseFloat(quote.low||quote.price),lo=parseFloat(quote.open||quote.price);
+        const ty=nowR.getFullYear(),tm2=String(nowR.getMonth()+1).padStart(2,'0'),td2=String(nowR.getDate()).padStart(2,'0');
+        const todayStr=`${ty}-${tm2}-${td2}`;
+        const last=workingDaily[workingDaily.length-1];
+        const liveCandle={date:todayStr,open:lo,high:lh,low:ll,close:lp,volume:0,adjusted_close:lp};
+        if(last?.date?.split('T')[0]===todayStr) workingDaily[workingDaily.length-1]=liveCandle;
+        else workingDaily.push(liveCandle);
       }
-    }
-  }catch(e){/* تجاهل لو فشل */}
+    }catch(e){}
+  }
+
+  // ── بناء الشمعات حسب الإطار من البيانات اليومية (مع الشمعة الحية إن وجدت) ──
+  const built=buildCandles(workingDaily, tf);
+  if(built.length<10) return null;
+  const sorted=[...built].sort((a,b)=>new Date(a.date)-new Date(b.date));
 
   return{
     closes:    sorted.map(c=>parseFloat(c.close)),
@@ -926,6 +949,8 @@ async function fetchStockTF(sym, tf){
     lows:      sorted.map(c=>parseFloat(c.low)),
     lastCandle:sorted[sorted.length-1],
     count:     sorted.length,
+    _rawDaily: workingDaily,
+    sorted,
   };
 }
 
@@ -992,7 +1017,7 @@ function calcStoch(highs,lows,closes,kP=5,dP=3,sl=3){
   return{
     curK, curD, prevK, prevD,
     isPositive:  curK > curD,
-    isCrossover: prevK < (prevD - 2) && curK > curD,
+    isCrossover: prevK < prevD && curK > curD,
     isBearish:   curK < curD,
   };
 }
@@ -1074,8 +1099,27 @@ async function runScan(){
     const batch=MARKET.slice(i,Math.min(i+CONCURRENCY,total));
     const settled=await Promise.allSettled(batch.map(async stock=>{
       try{
+        // ── جلب البيانات مرة واحدة (7 سنوات يومي) وبناء كل الإطارات ──
+        const dailyData = await fetchStockTF(stock.sym, 'D');
+        if(!dailyData) return null;
+
         const tfData={};
-        await Promise.all(allTFs.map(async tf=>{tfData[tf]=await fetchStockTF(stock.sym,tf);}));
+        for(const tf of allTFs){
+          if(tf==='D'){ tfData['D']=dailyData; continue; }
+          // بناء الإطار من البيانات اليومية الخام
+          const rawDaily=dailyData._rawDaily||[];
+          const builtCandles = buildCandles(rawDaily, tf);
+          if(!builtCandles||builtCandles.length<10){ tfData[tf]=null; continue; }
+          const s=[...builtCandles].sort((a,b)=>new Date(a.date)-new Date(b.date));
+          tfData[tf]={
+            closes:s.map(c=>parseFloat(c.close)),
+            highs:s.map(c=>parseFloat(c.high)),
+            lows:s.map(c=>parseFloat(c.low)),
+            lastCandle:s[s.length-1],
+            count:s.length,
+            sorted:s,
+          };
+        }
 
         // جلب الاسم الحقيقي من quote
         let realName = stock.name;
@@ -1119,31 +1163,18 @@ async function runScan(){
 
 function finalizeScan(results,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMAPerTF){
 
-  function checkDMA(s){
-    if(!dmaOn||dmaTFs.length===0) return null;
-    const trigTF=dmaTFs[dmaTFs.length-1];
-    const condTFs=dmaTFs.slice(0,-1);
-    // يظهر طالما DIF فوق DIFMA (يدخل عند التقاطع ويبقى حتى يتراجع)
-    if(!s.dmaSigs[trigTF].isPositive) return false;
-    if(s._dmaZeroPerTF[trigTF]&&s.dmaSigs[trigTF].curDma<=0) return false;
-    if(dmaSMAPerTF[trigTF]&&!s.dmaAboveSMAPerTF[trigTF]) return false;
-    for(const tf of condTFs){
-      if(!s.dmaSigs[tf].isPositive) return false;
-      if(s._dmaZeroPerTF[tf]&&s.dmaSigs[tf].curDma<=0) return false;
-      if(dmaSMAPerTF[tf]&&!s.dmaAboveSMAPerTF[tf]) return false;
-    }
-    return true;
-  }
-
   function checkStoch(s){
     if(!stochOn||stochTFs.length===0) return null;
-    const trigTF=stochTFs[stochTFs.length-1];
-    const condTFs=stochTFs.slice(0,-1);
-    // يظهر طالما K فوق D (يدخل عند التقاطع ويبقى حتى يتراجع)
-    if(!s.stochSigs[trigTF].isPositive) return false;
+    // الزناد المخصص أو آخر إطار افتراضياً
+    const customTrig=getTrigTF('stoch');
+    const trigTF = customTrig && stochTFs.includes(customTrig) ? customTrig : stochTFs[stochTFs.length-1];
+    const condTFs = stochTFs.filter(tf=>tf!==trigTF);
+    // الزناد: تقاطع K فوق D في آخر شمعة فقط
+    if(!s.stochSigs[trigTF].isCrossover) return false;
     const trigCross=s._crossPerTF?.[trigTF];
     if(trigCross?.enabled && s.stochSigs[trigTF].curK >= trigCross.val) return false;
     if(stochSMAPerTF[trigTF]&&!s.stochAboveSMAPerTF[trigTF]) return false;
+    // الشروط: K فوق D (isPositive) بغض النظر عن وقت العبور
     for(const tf of condTFs){
       if(!s.stochSigs[tf].isPositive) return false;
       const condCross=s._crossPerTF?.[tf];
@@ -1153,47 +1184,36 @@ function finalizeScan(results,dmaOn,stochOn,dmaTFs,stochTFs,dmaSMAPerTF,stochSMA
     return true;
   }
 
+  function checkDMA(s){
+    if(!dmaOn||dmaTFs.length===0) return null;
+    // الزناد المخصص أو آخر إطار افتراضياً
+    const customTrig=getTrigTF('dma');
+    const trigTF = customTrig && dmaTFs.includes(customTrig) ? customTrig : dmaTFs[dmaTFs.length-1];
+    const condTFs = dmaTFs.filter(tf=>tf!==trigTF);
+    // الزناد: تقاطع DIF فوق DIFMA في آخر شمعة فقط
+    if(!s.dmaSigs[trigTF].isCrossover) return false;
+    if(s._dmaZeroPerTF[trigTF]&&s.dmaSigs[trigTF].curDma<=0) return false;
+    if(dmaSMAPerTF[trigTF]&&!s.dmaAboveSMAPerTF[trigTF]) return false;
+    // الشروط: DIF فوق DIFMA (isPositive)
+    for(const tf of condTFs){
+      if(!s.dmaSigs[tf].isPositive) return false;
+      if(s._dmaZeroPerTF[tf]&&s.dmaSigs[tf].curDma<=0) return false;
+      if(dmaSMAPerTF[tf]&&!s.dmaAboveSMAPerTF[tf]) return false;
+    }
+    return true;
+  }
+
   let final=results.filter(s=>{
-    const dmaResult=checkDMA(s);   // true=pass, false=fail, null=inactive
+    const dmaResult=checkDMA(s);
     const stochResult=checkStoch(s);
-
-    if(triggerMode==='dma'){
-      // DMA زناد، Stoch فلتر K>D فقط
-      if(dmaResult!==true) return false;
-      if(stochOn&&stochTFs.length>0){
-        for(const tf of stochTFs){
-          if(!s.stochSigs[tf].isPositive) return false; // K>D
-          if(stochSMAPerTF[tf]&&!s.stochAboveSMAPerTF[tf]) return false;
-        }
-      }
-      return true;
-    }
-
-    if(triggerMode==='stoch'){
-      // Stoch زناد، DMA فلتر DIF>DIFMA فقط
-      if(stochResult!==true) return false;
-      if(dmaOn&&dmaTFs.length>0){
-        for(const tf of dmaTFs){
-          if(!s.dmaSigs[tf].isPositive) return false; // DIF>DIFMA
-          if(s._dmaZeroPerTF[tf]&&s.dmaSigs[tf].curDma<=0) return false;
-          if(dmaSMAPerTF[tf]&&!s.dmaAboveSMAPerTF[tf]) return false;
-        }
-      }
-      return true;
-    }
-
-    // both: كلاهما لازم يتقاطعان
-    // إذا كلاهما inactive → ما يظهر شيء
+    // إذا كلاهما غير مفعّل → لا يظهر
     if(dmaResult===null&&stochResult===null) return false;
-    // إذا واحد فقط active
+    // إذا واحد فقط مفعّل → يجب يمر
     if(dmaResult===null) return stochResult===true;
     if(stochResult===null) return dmaResult===true;
-    // كلاهما active
+    // كلاهما مفعّل → كلاهما يجب يمر
     return dmaResult===true && stochResult===true;
   });
-
-  // Store trigger mode on each result for display
-  final.forEach(s=>{s._triggerMode=triggerMode;});
 
   lastResults=final;
   buildHeader(dmaTFs,stochTFs,dmaOn,stochOn,dmaSMAPerTF,stochSMAPerTF);
@@ -1303,28 +1323,19 @@ function renderTable(data){
       stochCols+=`<td>${smaBadge}<span class="sig ${sigClass}">${sigLabel}</span></td>`;
     });
 
-    // Overall signal — يعكس وضع الزناد بناءً على triggerMode
-    const tMode=s._triggerMode||triggerMode;
+    // Overall signal — يعكس الزناد المفعّل
     const dmaActive=s._dmaOn && s._dmaTFs.length>0;
     const stochActive=s._stochOn && s._stochTFs.length>0;
-    const dmaTrigTF=dmaActive?s._dmaTFs[s._dmaTFs.length-1]:null;
-    const stochTrigTF=stochActive?s._stochTFs[s._stochTFs.length-1]:null;
+    const dmaTrigTF=dmaActive?(getTrigTF('dma')&&s._dmaTFs.includes(getTrigTF('dma'))?getTrigTF('dma'):s._dmaTFs[s._dmaTFs.length-1]):null;
+    const stochTrigTF=stochActive?(getTrigTF('stoch')&&s._stochTFs.includes(getTrigTF('stoch'))?getTrigTF('stoch'):s._stochTFs[s._stochTFs.length-1]):null;
     const dmaCross=dmaTrigTF&&s.dmaSigs[dmaTrigTF]?.isCrossover;
     const stochCross=stochTrigTF&&s.stochSigs[stochTrigTF]?.isCrossover;
 
     let overallSig,overallClass;
-    if(tMode==='dma'){
-      overallSig=dmaCross?'⚡ DMA تقاطع':'✓ DMA إيجابي';
-      overallClass=dmaCross?'sig-trig':'sig-cond';
-    } else if(tMode==='stoch'){
-      overallSig=stochCross?'⚡ Stoch تقاطع':'✓ Stoch إيجابي';
-      overallClass=stochCross?'sig-trig':'sig-cond';
-    } else {
-      // both
-      if(dmaCross&&stochCross){overallSig='🚀 تقاطع مزدوج';overallClass='sig-trig';}
-      else if(dmaCross){overallSig='⚡ DMA تقاطع';overallClass='sig-trig';}
-      else{overallSig='⚡ Stoch تقاطع';overallClass='sig-trig';}
-    }
+    if(dmaCross&&stochCross){overallSig='🚀 تقاطع مزدوج';overallClass='sig-trig';}
+    else if(dmaCross){overallSig='⚡ DMA تقاطع';overallClass='sig-trig';}
+    else if(stochCross){overallSig='⚡ Stoch تقاطع';overallClass='sig-trig';}
+    else{overallSig='✓ إيجابي';overallClass='sig-cond';}
     entryCount++;
 
     const col=getColor(s.score);
@@ -1370,7 +1381,6 @@ function getSnap(){
     dmaTFs,stochTFs,
     dmaSMAPerTF,stochSMAPerTF,
     dmaZeroPerTF,
-    triggerMode,
     crossPerTF:getCrossPerTF(),
     stochK:parseInt(document.getElementById('stochK').value)||5,
     stochD:parseInt(document.getElementById('stochD').value)||3,
@@ -1419,7 +1429,6 @@ function applySnap(snap){
   if(snap.stochK){document.getElementById('stochK').value=snap.stochK;}
   if(snap.stochD){document.getElementById('stochD').value=snap.stochD;}
   if(snap.stochS){document.getElementById('stochS').value=snap.stochS;}
-  if(snap.triggerMode) setTrigger(snap.triggerMode);
   updateStochBadge();updateMTFHint();
 }
 async function saveStrategy(){
