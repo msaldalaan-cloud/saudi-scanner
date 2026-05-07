@@ -682,7 +682,35 @@ function filterStock(stock,cfg){
 //  SCAN
 // ══════════════════════════════════════════════════
 let lastResults=[];
-const BATCH=6;
+const BATCH=15; // رفع من 6 إلى 15 مع Vercel Pro
+
+// ── EmailJS ──
+const EJS_PUBLIC='zm9CaLsE14qKSEKKk';
+const EJS_SERVICE='service_3xdbabe';
+const EJS_TEMPLATE='template_wpcobe7';
+let ejsLoaded=false;
+function loadEJS(){
+  if(ejsLoaded) return;
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+  s.onload=()=>{emailjs.init(EJS_PUBLIC);ejsLoaded=true;};
+  document.head.appendChild(s);
+}
+loadEJS();
+
+async function sendAlert(email,stratName,results){
+  if(!email||!results.length) return;
+  try{
+    await emailjs.send(EJS_SERVICE,EJS_TEMPLATE,{
+      to_email:email,
+      strategy_name:stratName,
+      match_count:results.length,
+      stocks:results.slice(0,10).map(s=>`${s.sym} ${s.name} (${s.chg>0?'+':''}${s.chg}%)`).join('\n'),
+      scan_time:new Date().toLocaleString('ar-SA',{timeZone:'Asia/Riyadh'}),
+    });
+    console.log('📧 تم إرسال التنبيه لـ',email);
+  }catch(e){console.warn('EmailJS error:',e);}
+}
 
 async function runScan(cfg=null,silent=false){
   const settings=cfg||getSettings();
@@ -908,9 +936,15 @@ async function runWithSnap(id){
 // ── AUTO SCAN ──
 function startAutoScan(){
   stopAutoScan();
-  autoScanTimer=setInterval(()=>{
+  autoScanTimer=setInterval(async()=>{
     if(!marketOpen()) return; // فقط أثناء السوق
-    strategies.forEach(s=>runScan(s.snap,true));
+    for(const s of strategies){
+      const results=await runScan(s.snap,true);
+      // إرسال تنبيه إذا وجد نتائج جديدة وعنده إيميل
+      if(s.email&&results&&results.length>0){
+        await sendAlert(s.email,s.name,results);
+      }
+    }
   },5*60*1000); // كل 5 دقائق
 }
 function stopAutoScan(){
