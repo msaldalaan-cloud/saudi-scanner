@@ -166,68 +166,39 @@ const FULL_MARKET = [
 function isSaudiMarketOpen() {
   const r = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
   const t = r.getHours()*60 + r.getMinutes();
-  return r.getDay()>=0 && r.getDay()<=4 && t>=600 && t<=930;
-}
-
-// ─── بناء شمعات أسبوعية/شهرية من يومية ──────────────
-function buildCandles(dailyCandles, tf){
-  const sorted=[...dailyCandles].sort((a,b)=>new Date(a.date)-new Date(b.date));
-  if(tf==='daily') return sorted;
-  const groups={};
-  for(const c of sorted){
-    const d=new Date(c.date);
-    let key;
-    if(tf==='weekly'){
-      const day=d.getDay();
-      const ws=new Date(d); ws.setDate(d.getDate()-day);
-      const y=ws.getFullYear(),m=String(ws.getMonth()+1).padStart(2,'0'),dd=String(ws.getDate()).padStart(2,'0');
-      key=`${y}-${m}-${dd}`;
-    } else {
-      key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    }
-    if(!groups[key]) groups[key]=[];
-    groups[key].push(c);
-  }
-  return Object.entries(groups).sort(([a],[b])=>a.localeCompare(b)).map(([key,cs])=>({
-    date: tf==='weekly' ? key : key+'-01',
-    open: cs[0].open, high: Math.max(...cs.map(c=>parseFloat(c.high))),
-    low:  Math.min(...cs.map(c=>parseFloat(c.low))), close: cs[cs.length-1].close,
-    volume: cs.reduce((s,c)=>s+parseFloat(c.volume||0),0),
-  }));
+  return r.getDay()>=0 && r.getDay()<=4 && t>=595 && t<935;
 }
 
 // ─── جلب شمعات ────────────────────────────────────────
 async function fetchCandles(sym, period) {
   try {
+    // استخدام تاريخ الرياض
     const nowR = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
     const toStr = nowR.toISOString().split('T')[0];
     const from = new Date(nowR);
-    // دائماً نجلب يومي ونبني منه الأطر الأخرى
     if      (period==='daily')   from.setFullYear(from.getFullYear()-2);
     else if (period==='weekly')  from.setFullYear(from.getFullYear()-7);
     else if (period==='monthly') from.setFullYear(from.getFullYear()-25);
-    const url = `${BASE_URL}/historical/${sym}/?period=daily&from=${from.toISOString().split('T')[0]}&to=${toStr}`;
+    const url = `${BASE_URL}/historical/${sym}/?period=${period}&from=${from.toISOString().split('T')[0]}&to=${toStr}`;
     const res = await fetch(url,{headers:{'X-API-Key':API_KEY,'Accept':'application/json'},signal:AbortSignal.timeout(10000)});
     const text = await res.text();
     if(!text||text.trim().startsWith('<')) return null;
     const json = JSON.parse(text);
-    const rawCandles = json?.data||json?.results||json?.candles||[];
-    // استبعاد الجمعة والسبت
-    const dailyFiltered=rawCandles.filter(c=>{
+    const candles = json?.data||json?.results||json?.candles||[];
+    if(candles.length<60) return null;
+    const filtered=candles.filter(c=>{
       const d=new Date(c.date); return d.getDay()!==5 && d.getDay()!==6;
     });
-    // بناء الشمعات حسب الإطار
-    const built = buildCandles(dailyFiltered, period);
-    if(built.length<60) return null;
-    const sorted = [...built].sort((a,b)=>new Date(a.date)-new Date(b.date));
+    if(filtered.length<60) return null;
+    const sorted = [...filtered].sort((a,b)=>new Date(a.date)-new Date(b.date));
 
-    // ── تحقق إن البيانات اليومية محدّثة ──
+    // ── تحقق إن البيانات محدّثة لآخر يوم تداول ──
     if(period==='daily'){
       const lastDate=sorted[sorted.length-1]?.date?.split('T')[0];
-      const nowR2=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-      const timeMin=nowR2.getHours()*60+nowR2.getMinutes();
-      const marketOpen=nowR2.getDay()>=0&&nowR2.getDay()<=4&&timeMin>=600&&timeMin<=930;
-      let lastTrading=new Date(nowR2);
+      const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
+      const timeMin=nowR.getHours()*60+nowR.getMinutes();
+      const marketOpen=nowR.getDay()>=0&&nowR.getDay()<=4&&timeMin>=595&&timeMin<=935;
+      let lastTrading=new Date(nowR);
       if(!marketOpen){
         lastTrading.setDate(lastTrading.getDate()-1);
         while(lastTrading.getDay()===5||lastTrading.getDay()===6){
@@ -245,8 +216,8 @@ async function fetchCandles(sym, period) {
       if(lastDate!==lastTradingStr) return null;
     }
 
-    // ── شمعة حية لليومي فقط أثناء السوق ──
-    if(isSaudiMarketOpen() && period==='daily'){
+    // ── شمعة الإطار الحالية الحية (فقط أثناء ساعات السوق) ──
+    if(isSaudiMarketOpen()){
     try{
       const qRes=await fetch(`${BASE_URL}/quote/${sym}/`,{headers:{'X-API-Key':API_KEY,'Accept':'application/json'},signal:AbortSignal.timeout(5000)});
       const qText=await qRes.text();
@@ -254,16 +225,47 @@ async function fetchCandles(sym, period) {
         const q=JSON.parse(qText);
         if(q?.price){
           const lp=parseFloat(q.price), lh=parseFloat(q.high||q.price), ll=parseFloat(q.low||q.price), lo=parseFloat(q.open||q.price);
-          const nowR2=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-          const y=nowR2.getFullYear(),m=String(nowR2.getMonth()+1).padStart(2,'0'),d=String(nowR2.getDate()).padStart(2,'0');
-          const todayStr=`${y}-${m}-${d}`;
+          const today=new Date();
+          const todayStr=today.toISOString().split('T')[0];
           const lastDate=(sorted[sorted.length-1]?.date||'').split('T')[0];
-          const live={date:todayStr,open:lo,high:lh,low:ll,close:lp};
-          if(lastDate===todayStr) sorted[sorted.length-1]=live; else sorted.push(live);
+
+          if(period==='daily'){
+            const live={date:todayStr,open:lo,high:lh,low:ll,close:lp};
+            if(lastDate===todayStr) sorted[sorted.length-1]=live; else sorted.push(live);
+
+          } else if(period==='weekly'){
+            const dayOfWeek=today.getDay();
+            const weekStart=new Date(today); weekStart.setDate(today.getDate()-dayOfWeek);
+            const weekStartStr=weekStart.toISOString().split('T')[0];
+            const wRes=await fetch(`${BASE_URL}/historical/${sym}/?period=daily&from=${weekStartStr}&to=${todayStr}`,{headers:{'X-API-Key':API_KEY,'Accept':'application/json'},signal:AbortSignal.timeout(8000)});
+            const wText=await wRes.text();
+            let wHigh=lh,wLow=ll,wOpen=lo;
+            if(!wText.trim().startsWith('<')){
+              const wData=JSON.parse(wText);
+              const wC=wData?.data||wData?.results||[];
+              if(wC.length>0){wHigh=Math.max(...wC.map(c=>parseFloat(c.high)),lh);wLow=Math.min(...wC.map(c=>parseFloat(c.low)),ll);wOpen=parseFloat(wC[0].open);}
+            }
+            const live={date:weekStartStr,open:wOpen,high:wHigh,low:wLow,close:lp};
+            if(lastDate>=weekStartStr) sorted[sorted.length-1]=live; else sorted.push(live);
+
+          } else if(period==='monthly'){
+            const monthStart=new Date(today.getFullYear(),today.getMonth(),1);
+            const monthStartStr=monthStart.toISOString().split('T')[0];
+            const mRes=await fetch(`${BASE_URL}/historical/${sym}/?period=daily&from=${monthStartStr}&to=${todayStr}`,{headers:{'X-API-Key':API_KEY,'Accept':'application/json'},signal:AbortSignal.timeout(8000)});
+            const mText=await mRes.text();
+            let mHigh=lh,mLow=ll,mOpen=lo;
+            if(!mText.trim().startsWith('<')){
+              const mData=JSON.parse(mText);
+              const mC=mData?.data||mData?.results||[];
+              if(mC.length>0){mHigh=Math.max(...mC.map(c=>parseFloat(c.high)),lh);mLow=Math.min(...mC.map(c=>parseFloat(c.low)),ll);mOpen=parseFloat(mC[0].open);}
+            }
+            const live={date:monthStartStr,open:mOpen,high:mHigh,low:mLow,close:lp};
+            if(lastDate>=monthStartStr) sorted[sorted.length-1]=live; else sorted.push(live);
+          }
         }
       }
     }catch(e){}
-    } // end live candle
+    } // end isSaudiMarketOpen
 
     return {closes:sorted.map(c=>parseFloat(c.close)),highs:sorted.map(c=>parseFloat(c.high)),lows:sorted.map(c=>parseFloat(c.low)),last:sorted[sorted.length-1]};
   } catch { return null; }
@@ -304,7 +306,7 @@ function calcStoch(highs,lows,closes,kP=5,dP=3,sl=3) {
   const curK=smoothK[smoothK.length-1],prevK=smoothK[smoothK.length-2];
   const curD=D[D.length-1],prevD=D[D.length-2];
   return{curK,curD,prevK,prevD,
-    isPositive:curK>curD,isCrossover:prevK<prevD&&curK>curD,isBearish:curK<curD};
+    isPositive:curK>curD,isCrossover:prevK<(prevD-2)&&curK>curD,isBearish:curK<curD};
 }
 
 // ─── SMA50 ────────────────────────────────────────────
@@ -380,13 +382,12 @@ async function scanStockForStrategy(stock, strategy) {
     if(!tfs||tfs.length===0) return null;
     const trigTF = tfs[tfs.length-1];
     const condTFs = tfs.slice(0,-1);
-    // الزناد: تقاطع في آخر شمعة فقط
-    if(!sigs[trigTF]?.isCrossover) return false;
-    if(!isDMA && crossPTF?.[trigTF]?.enabled) {
-      if(sigs[trigTF].curK >= crossPTF[trigTF].val) return false;
-    }
+    // يظهر طالما الإشارة إيجابية (يدخل عند التقاطع ويبقى حتى يتراجع)
+    if(!sigs[trigTF]?.isPositive) return false;
+    // فلتر التقاطع (cross threshold للـ Stoch) — يُطبّق فقط عند الدخول لكن لا يُطرد السهم بعدها
+    // SMA50 على الزناد
     if(smaPerTF?.[trigTF] && sma50[trigTF]===false) return false;
-    // الشروط الأبطأ: isPositive فقط
+    // الإطارات الأبطأ = شروط الاتجاه
     for(const tf of condTFs) {
       if(!sigs[tf]?.isPositive) return false;
       if(smaPerTF?.[tf] && sma50[tf]===false) return false;
