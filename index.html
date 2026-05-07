@@ -400,7 +400,7 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
         <div class="ind-header">
           <div class="ind-name">
             Stochastic
-            <span class="ind-badge" id="stochBadge" title="انقر لتعديل الإعدادات" onclick="toggleStochParams()">5 · 3 · 3</span>
+            <span class="ind-badge" id="stochBadge" title="انقر لتعديل الإعدادات" onclick="toggleStochParams()">14 · 3 · 3</span>
           </div>
           <label class="toggle">
             <input type="checkbox" id="stochOn" checked onchange="syncCard('stoch');updateMTFHint()">
@@ -503,7 +503,7 @@ td{padding:10px 13px;font-size:13px;white-space:nowrap}
           <div class="params-row">
             <div class="param-group">
               <div class="param-label">K Period</div>
-              <input type="number" class="param-input" id="stochK" value="5" min="1" max="50" oninput="updateStochBadge()">
+              <input type="number" class="param-input" id="stochK" value="14" min="1" max="50" oninput="updateStochBadge()">
             </div>
             <div class="param-group">
               <div class="param-label">D Period</div>
@@ -894,7 +894,7 @@ async function fetchStockTF(sym, tf){
     const d=new Date(c.date); return d.getDay()!==5&&d.getDay()!==6;
   }).sort((a,b)=>new Date(a.date)-new Date(b.date));
 
-  if(dailyFiltered.length<60) return null;
+  if(dailyFiltered.length<15) return null;
 
   // ── تحقق إن البيانات اليومية محدّثة ──
   const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
@@ -980,14 +980,10 @@ function calcDMA(closes){
 }
 
 function calcStoch(highs,lows,closes,kP=5,dP=3,sl=3){
-  // TradingView Stoch(K,D,Smooth):
-  // kP = K Period (نافذة أعلى/أدنى)
-  // sl = Smooth K (تمهيد K بـ SMA)
-  // dP = D Period (SMA لـ K الممهّد)
   const n=closes.length;
   if(n<kP+sl+dP+2) return null;
 
-  // حساب Raw %K
+  // حساب Raw %K باستخدام High/Low الأصلي
   const rawK=[];
   for(let i=kP-1;i<n;i++){
     const hh=Math.max(...highs.slice(i-kP+1,i+1));
@@ -1085,7 +1081,7 @@ async function runScan(){
   const dmaZeroPerTF={};
   dmaTFs.forEach(tf=>dmaZeroPerTF[tf]=document.getElementById(`dmaZero_${tf}`)?.checked||false);
   const crossPerTF=getCrossPerTF();
-  const stochK=parseInt(document.getElementById('stochK').value)||5;
+  const stochK=parseInt(document.getElementById("stochK").value)||14;
   const stochD=parseInt(document.getElementById('stochD').value)||3;
   const stochS=parseInt(document.getElementById('stochS').value)||3;
   const allTFs=[...new Set([...dmaTFs,...stochTFs])];
@@ -1382,7 +1378,7 @@ function getSnap(){
     dmaSMAPerTF,stochSMAPerTF,
     dmaZeroPerTF,
     crossPerTF:getCrossPerTF(),
-    stochK:parseInt(document.getElementById('stochK').value)||5,
+    stochK:parseInt(document.getElementById("stochK").value)||14,
     stochD:parseInt(document.getElementById('stochD').value)||3,
     stochS:parseInt(document.getElementById('stochS').value)||3,
   };
