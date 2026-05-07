@@ -209,10 +209,7 @@ async function fetchCandles(sym, period) {
           lastTrading.setDate(lastTrading.getDate()-1);
         }
       }
-      const y=lastTrading.getFullYear();
-      const mo=String(lastTrading.getMonth()+1).padStart(2,'0');
-      const d=String(lastTrading.getDate()).padStart(2,'0');
-      const lastTradingStr=`${y}-${mo}-${d}`;
+      const lastTradingStr=lastTrading.toISOString().split('T')[0];
       if(lastDate!==lastTradingStr) return null;
     }
 
@@ -400,33 +397,9 @@ async function scanStockForStrategy(stock, strategy) {
 
   // منطق triggerMode
   let hasSignal = false;
-  if(triggerMode==='dma') {
-    // DMA هو الزناد — يجب يمر
-    if(dmaPass!==true) return null;
-    // Stoch كشروط إضافية — كل إطاراته يجب isPositive
-    if(stochOn && stochTFs.length>0) {
-      for(const tf of stochTFs) {
-        if(!stochSigs[tf]?.isPositive) return null;
-        if(stochSMAPerTF[tf] && sma50[tf]===false) return null;
-      }
-    }
-    hasSignal = true;
-  } else if(triggerMode==='stoch') {
-    // Stoch هو الزناد — يجب يمر
-    if(stochPass!==true) return null;
-    // DMA كشروط إضافية — كل إطاراته يجب isPositive
-    if(dmaOn && dmaTFs.length>0) {
-      for(const tf of dmaTFs) {
-        if(!dmaSigs[tf]?.isPositive) return null;
-        if(s?._dmaZeroPerTF?.[tf] && dmaSigs[tf]?.curDma<=0) return null;
-        if(dmaSMAPerTF[tf] && sma50[tf]===false) return null;
-      }
-    }
-    hasSignal = true;
-  } else {
-    // both: كلاهما زناد
-    hasSignal = (dmaOn&&stochOn) ? (dmaPass===true&&stochPass===true) : (dmaPass===true||stochPass===true);
-  }
+  if(triggerMode==='dma')   hasSignal = dmaPass===true;
+  else if(triggerMode==='stoch') hasSignal = stochPass===true;
+  else hasSignal = (dmaOn&&stochOn) ? (dmaPass===true&&stochPass===true) : (dmaPass===true||stochPass===true);
 
   if(!hasSignal) return null;
 
