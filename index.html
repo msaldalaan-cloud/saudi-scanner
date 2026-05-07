@@ -876,16 +876,12 @@ function buildCandles(dailyCandles, tf){
 }
 
 async function fetchStockTF(sym, tf){
-  // دائماً نجلب البيانات اليومية ونبني منها الأطر الأخرى
+  // دائماً نجلب 7 سنوات من البيانات اليومية (كافية لكل الإطارات)
   const nowRiyadh=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
-  // استخدام تاريخ الرياض مباشرة (ليس toISOString الذي يعطي UTC)
   const ry=nowRiyadh.getFullYear(),rm=String(nowRiyadh.getMonth()+1).padStart(2,'0'),rd=String(nowRiyadh.getDate()).padStart(2,'0');
   const toStr=`${ry}-${rm}-${rd}`;
   const from=new Date(nowRiyadh);
-  // نجلب كافية للإطار المطلوب
-  if(tf==='D')   from.setFullYear(from.getFullYear()-2);
-  else if(tf==='W') from.setFullYear(from.getFullYear()-7);
-  else if(tf==='M') from.setFullYear(from.getFullYear()-25);
+  from.setFullYear(from.getFullYear()-7); // 7 سنوات كافية لكل الإطارات
   const fy=from.getFullYear(),fm=String(from.getMonth()+1).padStart(2,'0'),fd=String(from.getDate()).padStart(2,'0');
   const data=await apiFetch(`historical/${sym}`,{
     period:'daily',
@@ -1009,6 +1005,8 @@ async function fetchStockTF(sym, tf){
     lows:      sorted.map(c=>parseFloat(c.low)),
     lastCandle:sorted[sorted.length-1],
     count:     sorted.length,
+    _rawDaily: dailyFiltered,
+    sorted,
   };
 }
 
@@ -1157,8 +1155,27 @@ async function runScan(){
     const batch=MARKET.slice(i,Math.min(i+CONCURRENCY,total));
     const settled=await Promise.allSettled(batch.map(async stock=>{
       try{
+        // ── جلب البيانات مرة واحدة (7 سنوات يومي) وبناء كل الإطارات ──
+        const dailyData = await fetchStockTF(stock.sym, 'D');
+        if(!dailyData) return null;
+
         const tfData={};
-        await Promise.all(allTFs.map(async tf=>{tfData[tf]=await fetchStockTF(stock.sym,tf);}));
+        for(const tf of allTFs){
+          if(tf==='D'){ tfData['D']=dailyData; continue; }
+          // بناء الإطار من البيانات اليومية الخام
+          const rawDaily=dailyData._rawDaily||[];
+          const builtCandles = buildCandles(rawDaily, tf);
+          if(!builtCandles||builtCandles.length<10){ tfData[tf]=null; continue; }
+          const s=[...builtCandles].sort((a,b)=>new Date(a.date)-new Date(b.date));
+          tfData[tf]={
+            closes:s.map(c=>parseFloat(c.close)),
+            highs:s.map(c=>parseFloat(c.high)),
+            lows:s.map(c=>parseFloat(c.low)),
+            lastCandle:s[s.length-1],
+            count:s.length,
+            sorted:s,
+          };
+        }
 
         // جلب الاسم الحقيقي من quote
         let realName = stock.name;
