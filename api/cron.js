@@ -166,7 +166,7 @@ const FULL_MARKET = [
 function isSaudiMarketOpen() {
   const r = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
   const t = r.getHours()*60 + r.getMinutes();
-  return r.getDay()>=0 && r.getDay()<=4 && t>=595 && t<935;
+  return r.getDay()>=0 && r.getDay()<=4 && t>=600 && t<=930;
 }
 
 // ─── بناء شمعات أسبوعية/شهرية من يومية ──────────────
@@ -226,7 +226,7 @@ async function fetchCandles(sym, period) {
       const lastDate=sorted[sorted.length-1]?.date?.split('T')[0];
       const nowR2=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
       const timeMin=nowR2.getHours()*60+nowR2.getMinutes();
-      const marketOpen=nowR2.getDay()>=0&&nowR2.getDay()<=4&&timeMin>=595&&timeMin<=935;
+      const marketOpen=nowR2.getDay()>=0&&nowR2.getDay()<=4&&timeMin>=600&&timeMin<=930;
       let lastTrading=new Date(nowR2);
       if(!marketOpen){
         lastTrading.setDate(lastTrading.getDate()-1);
