@@ -899,9 +899,9 @@ async function fetchStockTF(sym, tf){
   if(candles.length<60) return null;
   const sorted=[...candles].sort((a,b)=>new Date(a.date)-new Date(b.date));
 
-  // ── تحقق إن البيانات محدّثة لآخر يوم تداول ──
-  if(period==='daily'){
-    const lastCandleDate=sorted[sorted.length-1]?.date?.split('T')[0];
+  // ── تحقق إن البيانات اليومية محدّثة (فقط للإطار اليومي) ──
+  if(tf==='D'){
+    const lastDailyDate=dailyFiltered[dailyFiltered.length-1]?.date?.split('T')[0];
     const nowR=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Riyadh'}));
     const timeMin=nowR.getHours()*60+nowR.getMinutes();
     const isMarketOpen=nowR.getDay()>=0&&nowR.getDay()<=4&&timeMin>=595&&timeMin<=935;
@@ -916,12 +916,11 @@ async function fetchStockTF(sym, tf){
         lastTrading.setDate(lastTrading.getDate()-1);
       }
     }
-    // استخدم تاريخ الرياض مباشرة (YYYY-MM-DD)
     const y=lastTrading.getFullYear();
-    const m=String(lastTrading.getMonth()+1).padStart(2,'0');
+    const mo=String(lastTrading.getMonth()+1).padStart(2,'0');
     const d=String(lastTrading.getDate()).padStart(2,'0');
-    const lastTradingStr=`${y}-${m}-${d}`;
-    if(lastCandleDate!==lastTradingStr) return null;
+    const lastTradingStr=`${y}-${mo}-${d}`;
+    if(lastDailyDate!==lastTradingStr) return null;
   }
 
   // ── شمعة اليوم الحية لكل الإطارات ──
